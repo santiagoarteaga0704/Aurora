@@ -2314,3 +2314,164 @@ button.estrella:hover {
   gap: var(--e3);
   flex-wrap: wrap;
 }
+
+/* === Mi cuenta ============================================================
+   Tres bloques y no tres pantallas: datos, medidas y direcciones son lo que
+   una clienta administra de si misma, y estaban repartidas —las direcciones
+   solo dentro del checkout— sin un lugar al que ir a cambiar algo sin estar
+   en mitad de una compra.
+   ========================================================================= */
+
+.cuenta__cabecera {
+  margin-bottom: var(--e6);
+}
+
+.cuenta__bajada {
+  margin-top: var(--e2);
+  color: var(--tinta-suave);
+}
+
+.cuenta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--e5);
+  align-items: start;
+}
+
+.cuenta__bloque {
+  padding: var(--e5);
+  background: var(--papel-hondo);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio-suave);
+}
+
+.cuenta__bloque--ancho {
+  grid-column: 1 / -1;
+}
+
+.cuenta__titulo {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  margin-bottom: var(--e4);
+}
+
+.cuenta__titulo-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+
+.cuenta__titulo-fila .cuenta__titulo {
+  margin-bottom: var(--e4);
+}
+
+.cuenta__datos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  margin-bottom: var(--e4);
+}
+
+.cuenta__datos dd {
+  margin-top: 2px;
+  color: var(--tinta);
+}
+
+.cuenta__nota {
+  margin-bottom: var(--e4);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--tinta-media);
+  max-width: 48ch;
+}
+
+/* --- Direcciones --- */
+
+.cuenta__direcciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--e4);
+  list-style: none;
+}
+
+.direccion {
+  padding: var(--e4);
+  background: var(--papel);
+  border: 1px solid var(--papel-borde);
+  border-left: 2px solid var(--papel-borde);
+  border-radius: var(--radio);
+}
+
+.direccion--principal {
+  border-left-color: var(--vino);
+}
+
+.direccion__cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  flex-wrap: wrap;
+}
+
+.direccion__alias {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.direccion__texto {
+  margin-top: var(--e2);
+  line-height: 1.45;
+}
+
+.direccion__ciudad {
+  font-size: 0.86rem;
+  color: var(--tinta-media);
+}
+
+.direccion__referencia {
+  margin-top: var(--e1);
+  font-size: 0.82rem;
+  color: var(--tinta-suave);
+  line-height: 1.45;
+}
+
+.direccion .boton {
+  margin-top: var(--e3);
+}
+
+/* --- Formulario de direccion --- */
+
+.cuenta__formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--e4);
+  margin-top: var(--e5);
+  padding-top: var(--e5);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.cuenta__campo-ancho {
+  grid-column: 1 / -1;
+}
+
+.cuenta__principal {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  grid-column: 1 / -1;
+  font-size: 0.9rem;
+  color: var(--tinta-media);
+}
+
+.cuenta__principal input {
+  accent-color: var(--vino);
+}
+
+.cuenta__acciones {
+  display: flex;
+  gap: var(--e3);
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+}

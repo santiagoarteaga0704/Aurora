@@ -76,7 +76,7 @@ export function LayoutTienda() {
 
             {perfil ? (
               <div className="cabecera__cuenta">
-                <Link to="/mis-pedidos" className="cabecera__enlace">
+                <Link to="/mi-cuenta" className="cabecera__enlace">
                   {perfil.nombre}
                 </Link>
                 <button
@@ -122,6 +122,7 @@ export function LayoutTienda() {
               <Link to="/catalogo">Catalogo completo</Link>
               <Link to="/mis-pedidos">Mis pedidos</Link>
               <Link to="/mis-medidas">Mis medidas</Link>
+              <Link to="/mi-cuenta">Mi cuenta</Link>
             </div>
             <div>
               <p className="rotulo">Personal</p>

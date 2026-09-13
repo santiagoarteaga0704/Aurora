@@ -12,6 +12,7 @@ import { Checkout } from './tienda/Checkout'
 import { DetallePedido } from './tienda/DetallePedido'
 import { MisPedidos } from './tienda/MisPedidos'
 import { MisMedidas } from './tienda/MisMedidas'
+import { MiCuenta } from './tienda/MiCuenta'
 import { Entrar } from './tienda/Entrar'
 
 import { LayoutOperaciones } from './operaciones/LayoutOperaciones'
@@ -27,6 +28,9 @@ import { Conflictos } from './operaciones/Conflictos'
 import { Usuarios } from './operaciones/Usuarios'
 import { Roles } from './operaciones/Roles'
 import { Compras } from './operaciones/Compras'
+import { Devoluciones } from './operaciones/Devoluciones'
+import { Envios } from './operaciones/Envios'
+import { Promociones } from './operaciones/Promociones'
 
 /** Exige sesion; opcionalmente, que sea del personal. */
 function Protegida({ children, personal = false }: { children: ReactNode; personal?: boolean }) {
@@ -81,6 +85,14 @@ export function App() {
           }
         />
         <Route
+          path="mi-cuenta"
+          element={
+            <Protegida>
+              <MiCuenta />
+            </Protegida>
+          }
+        />
+        <Route
           path="pedido/:id"
           element={
             <Protegida>
@@ -117,6 +129,9 @@ export function App() {
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="roles" element={<Roles />} />
         <Route path="compras" element={<Compras />} />
+        <Route path="devoluciones" element={<Devoluciones />} />
+        <Route path="envios" element={<Envios />} />
+        <Route path="promociones" element={<Promociones />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

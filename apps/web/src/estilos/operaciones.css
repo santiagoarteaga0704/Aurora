@@ -1882,3 +1882,148 @@
   color: var(--noche-suave);
   font-size: 0.76rem;
 }
+
+/* === Clasificacion de prendas devueltas ===================================
+   Botones grandes con el efecto escrito al lado, no un desplegable: de esto
+   depende si una prenda vuelve a la vitrina, y quien clasifica tiene que ver
+   la consecuencia sin buscarla.
+   ========================================================================= */
+
+.clasificar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  margin-block: var(--e4);
+  list-style: none;
+}
+
+.clasificar__prenda {
+  padding: var(--e4);
+  background: var(--noche-alto);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.clasificar__nombre {
+  color: var(--noche-texto);
+}
+
+.clasificar__opciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--e2);
+  margin-top: var(--e3);
+}
+
+.clasificar__opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--e3);
+  text-align: left;
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+  transition: var(--transicion);
+}
+
+.clasificar__opcion:hover {
+  border-color: var(--noche-suave);
+}
+
+.clasificar__opcion--activa {
+  background: var(--vino);
+  border-color: var(--vino);
+}
+
+.clasificar__titulo {
+  font-size: 0.9rem;
+  color: var(--noche-texto);
+}
+
+.clasificar__detalle {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--noche-suave);
+}
+
+.clasificar__opcion--activa .clasificar__detalle {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* === Hoja de ruta =========================================================
+   Tarjetas y no tabla: es la pantalla del repartidor, que la usa con una mano
+   y en la calle. Una tabla con scroll horizontal seria inservible ahi.
+   ========================================================================= */
+
+.ruta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: var(--e4);
+  list-style: none;
+}
+
+.ruta__parada {
+  padding: var(--e4) var(--e5);
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-left: 3px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.ruta__parada--en_ruta {
+  border-left-color: var(--vino-claro);
+}
+
+.ruta__parada--preparando {
+  border-left-color: var(--ocre);
+}
+
+.ruta__parada--fallido {
+  border-left-color: var(--alerta);
+}
+
+.ruta__parada--entregado {
+  border-left-color: var(--salvia);
+  opacity: 0.72;
+}
+
+.ruta__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+
+.ruta__pedido {
+  font-size: 0.78rem;
+  color: var(--noche-suave);
+}
+
+.ruta__direccion {
+  margin-top: var(--e1);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--noche-texto);
+}
+
+.ruta__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2) var(--e5);
+  margin-top: var(--e4);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--noche-borde);
+}
+
+.ruta__datos dd {
+  font-size: 0.86rem;
+  color: var(--noche-texto);
+}
+
+.ruta__acciones {
+  display: flex;
+  gap: var(--e2);
+  flex-wrap: wrap;
+  margin-top: var(--e4);
+}

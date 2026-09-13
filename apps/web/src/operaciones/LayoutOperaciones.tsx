@@ -31,6 +31,9 @@ export function LayoutOperaciones() {
     { a: '/op/asistente', texto: 'Asistente', permiso: PERMISOS.IA_ASISTENTE },
     { a: '/op/sin-aplicar', texto: 'Sin aplicar', permiso: PERMISOS.VENTA_VER },
     { a: '/op/compras', texto: 'Compras', permiso: PERMISOS.COMPRA_VER },
+    { a: '/op/devoluciones', texto: 'Devoluciones', permiso: PERMISOS.VENTA_VER },
+    { a: '/op/envios', texto: 'Envios', permiso: PERMISOS.VENTA_DESPACHAR },
+    { a: '/op/promociones', texto: 'Promociones', permiso: PERMISOS.PROMOCION_GESTIONAR },
     { a: '/op/usuarios', texto: 'Usuarios', permiso: PERMISOS.USUARIO_VER },
     { a: '/op/roles', texto: 'Roles', permiso: PERMISOS.ROL_GESTIONAR },
   ].filter((s) => puede(s.permiso))

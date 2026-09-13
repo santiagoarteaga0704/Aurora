@@ -411,14 +411,38 @@ La API las soporta enteras; les falta la interfaz.
       casillas agrupadas por módulo.
 - [x] **7.3** `apps/web/src/operaciones/Compras.tsx` — proveedores y compras con
       su recepción.
-- [ ] **7.4** `apps/web/src/operaciones/Devoluciones.tsx` — el ciclo completo,
+- [x] **7.4** `apps/web/src/operaciones/Devoluciones.tsx` — el ciclo completo,
       con la clasificación de prenda al recibir.
-- [ ] **7.5** `apps/web/src/operaciones/Envios.tsx` — hoja de ruta del
+- [x] **7.5** `apps/web/src/operaciones/Envios.tsx` — hoja de ruta del
       repartidor.
-- [ ] **7.6** `apps/web/src/operaciones/Promociones.tsx` — campañas y
+- [x] **7.6** `apps/web/src/operaciones/Promociones.tsx` — campañas y
       promociones.
-- [ ] **7.7** `apps/web/src/tienda/MiCuenta.tsx` — datos, direcciones, medidas.
-- [ ] **7.8** Capturas de cada una. Commit por pantalla o por par.
+- [x] **7.7** `apps/web/src/tienda/MiCuenta.tsx` — datos, direcciones, medidas.
+- [x] **7.8** Capturas de cada una. Commit por pantalla o por par.
+
+---
+
+**Hecho.** Siete pantallas, capturas en `docs/capturas/`. 593 pruebas en verde.
+
+Dos huecos de la API que salieron al construirlas:
+
+- **No había endpoint que listara almacenes.** Sin él, Compras no tenía cómo
+  ofrecer a dónde entra la mercadería y solo podía mirar. Se agregó
+  `GET /api/inventario/almacenes`.
+
+- **Los listados de compras y devoluciones no tenían tipo declarado.** El
+  servicio devolvía una forma sin nombre; la pantalla la adivinó mal —pidió
+  `items`, que el listado no trae a propósito— y se cayó entera al primer render
+  con datos. Ahora existen `CompraResumen` y `DevolucionResumen`.
+
+Y uno del PWA que afectaba a toda la aplicación: **una fecha sin hora se
+mostraba un día antes.** JavaScript parsea `"2026-09-13"` como medianoche UTC y
+en Bolivia eso cae a las 20:00 del día anterior.
+
+La carga de demostración también se arregló dos veces: elegía prendas por su
+stock **total** cuando el pedido sale del piso de venta de una sucursal —de ahí
+409 silenciosos— y el limitador de 120 peticiones por minuto la partía a la
+mitad sin decir nada.
 
 ---
 

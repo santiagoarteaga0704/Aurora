@@ -90,6 +90,25 @@ export const consultaDevolucionesSchema = paginacionSchema.extend({
 
 export type DatosConsultaDevoluciones = z.infer<typeof consultaDevolucionesSchema>
 
+/**
+ * Una devolucion en el listado.
+ *
+ * Sin las lineas, igual que en compras: llegan al abrir el detalle. El tipo
+ * faltaba y el servicio devolvia una forma sin declarar, que es la manera de
+ * que un cliente la adivine mal sin que nada avise.
+ */
+export interface DevolucionResumen {
+  id: string
+  numero: string
+  pedido_numero: string
+  cliente: string | null
+  motivo: MotivoDevolucion
+  estado: EstadoDevolucion
+  unidades: number
+  monto_reembolso: number
+  creado_en: string
+}
+
 export interface Devolucion {
   id: string
   numero: string

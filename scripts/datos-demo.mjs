@@ -532,14 +532,31 @@ async function principal() {
 
   // Pedidos en distintos estados, para que las pantallas de operaciones no
   // muestren una sola fila.
-  // Una variante por producto, no todas: un pedido de dos colores del mismo
-  // vestido deja una sola opinion —la resenia es por producto— y la ficha de
-  // demostracion quedaria con una linea sola.
+  /**
+   * Variantes vendibles desde el PISO DE VENTA de Aurora Centro.
+   *
+   * Se toman del inventario de ese almacen y no del stock total de la ficha:
+   * un pedido de la sucursal Centro sale del piso de venta, y la ficha suma
+   * todos los almacenes del pais. Con el total, la carga elegia prendas que
+   * solo tenian stock en el deposito central y los pedidos fallaban con 409 sin
+   * que quedara claro por que.
+   *
+   * Una variante por producto: un pedido de dos colores del mismo vestido deja
+   * una sola resenia —son por producto— y la ficha de demostracion quedaria con
+   * una linea sola.
+   */
+  const inventario = await pedir(
+    'GET',
+    `/api/inventario?almacen_id=${PISO_CENTRO}&por_pagina=100`,
+    { token }
+  )
+
   const conStock = []
-  for (const producto of creados) {
-    const ficha = await pedir('GET', `/api/catalogo/productos/${producto.slug}`, {})
-    const disponible = (ficha.json?.datos?.variantes ?? []).find((v) => v.disponible >= 2)
-    if (disponible) conStock.push(disponible)
+  const productosVistos = new Set()
+  for (const fila of inventario.json?.datos ?? []) {
+    if (fila.disponible < 4 || productosVistos.has(fila.producto)) continue
+    productosVistos.add(fila.producto)
+    conStock.push({ id: fila.variante_id, sku: fila.sku })
   }
 
   let pedidos = 0
@@ -608,6 +625,9 @@ async function principal() {
       token,
       cuerpo: { sucursal_id: SUCURSAL_CENTRO, monto_apertura: 500 },
     })
+    // La venta se registra y despues se cobra, en vez de mandar el pago con el
+    // pedido: el precio lo decide el servidor y aca no se conoce hasta que
+    // responde. Mandar un monto adivinado dejaria la venta a medio pagar.
     const venta = await pedir('POST', '/api/pedidos', {
       token,
       cuerpo: {
@@ -615,10 +635,16 @@ async function principal() {
         tipo_entrega: 'inmediata',
         sucursal_id: SUCURSAL_CENTRO,
         items: [{ variante_id: paraMostrador[0].id, cantidad: 1 }],
-        pago: { metodo_pago_id: 1, monto: paraMostrador[0].precio },
       },
     })
-    if (venta.estado === 201) pedidos++
+
+    if (venta.estado === 201) {
+      pedidos++
+      await pedir('POST', `/api/pedidos/${venta.json.datos.id}/pagos`, {
+        token,
+        cuerpo: { metodo_pago_id: 1, monto: venta.json.datos.total },
+      })
+    }
   }
 
   console.log(`  ${pedidos} pedidos`)
@@ -746,6 +772,116 @@ async function principal() {
         : `  no se pudo (${lote.estado})`
     )
   }
+
+  /* --- Posventa: una devolucion y envios ---------------------------------- */
+
+  // Sin esto, las pantallas de devoluciones y envios se ven vacias y no hay
+  // forma de mostrar ni la clasificacion de prendas al recibir ni la hoja de
+  // ruta, que son las dos partes que valen de este modulo.
+  console.log('\nPosventa...')
+
+  let devoluciones = 0
+  for (const entrega of entregados) {
+    const pedido = await pedir('GET', `/api/pedidos/${entrega.id}`, { token: entrega.clienta.token })
+    const linea = pedido.json?.datos?.items?.[0]
+    if (!linea) continue
+
+    const solicitud = await pedir('POST', '/api/devoluciones', {
+      token: entrega.clienta.token,
+      cuerpo: {
+        pedido_id: String(entrega.id),
+        motivo: 'talla_incorrecta',
+        detalle: 'Me quedo grande de hombros, quiero una talla menos',
+        items: [{ pedido_detalle_id: String(linea.id), cantidad: 1 }],
+      },
+    })
+
+    if (solicitud.estado !== 201) continue
+    devoluciones++
+
+    // Se aprueba pero NO se recibe: asi la pantalla puede mostrar el paso de
+    // clasificar prenda por prenda, que es lo que hay que poder ensenar.
+    await pedir('POST', `/api/devoluciones/${solicitud.json.datos.id}/resolver`, {
+      token,
+      cuerpo: { aprobada: true, comentario: 'Traela y te cambiamos la talla' },
+    })
+  }
+
+  console.log(`  ${devoluciones} devolucion(es) aprobadas, esperando la mercaderia`)
+
+  // --- Envios ---
+  //
+  // Se arman sobre pedidos a domicilio nuevos: los de retiro en tienda no
+  // generan envio, y sin envios la hoja de ruta no tiene nada que mostrar.
+  const repartidor = (await pedir('GET', '/api/usuarios?rol_id=5', { token })).json?.datos?.[0]
+
+  const DIRECCIONES = [
+    { direccion: 'Av. Monsenior Rivero 340', ciudad_id: 1, referencia: 'Edificio Aranjuez, piso 3' },
+    { direccion: 'Calle Libertad 918', ciudad_id: 1, referencia: 'Porton verde' },
+  ]
+
+  let envios = 0
+  for (const [n, clienta] of sesiones.entries()) {
+    const variantes = tomar(1)
+    if (variantes.length === 0) break
+
+    const direccion = await pedir('POST', '/api/clientes/mis-direcciones', {
+      token: clienta.token,
+      cuerpo: {
+        alias: n === 0 ? 'Casa' : 'Trabajo',
+        ...DIRECCIONES[n % DIRECCIONES.length],
+      },
+    })
+    // `agregar` devuelve la lista entera, no la direccion creada: se busca por
+    // el alias con el que se acaba de agregar.
+    const creada = (direccion.json?.datos ?? []).find(
+      (d) => d.alias === (n === 0 ? 'Casa' : 'Trabajo')
+    )
+    if (direccion.estado !== 201 || !creada) continue
+
+    const pedido = await pedir('POST', '/api/pedidos', {
+      token: clienta.token,
+      cuerpo: {
+        sucursal_id: SUCURSAL_CENTRO,
+        tipo_entrega: 'domicilio',
+        direccion_id: creada.id,
+        items: variantes.map((v) => ({ variante_id: v.id, cantidad: 1 })),
+      },
+    })
+    if (pedido.estado !== 201) continue
+    pedidos++
+
+    await pedir('POST', `/api/pedidos/${pedido.json.datos.id}/pagos`, {
+      token,
+      cuerpo: { metodo_pago_id: 4, monto: pedido.json.datos.total },
+    })
+    await pedir('POST', `/api/pedidos/${pedido.json.datos.id}/estado`, {
+      token,
+      cuerpo: { estado: 'preparando' },
+    })
+
+    const envio = await pedir('POST', '/api/envios', {
+      token,
+      cuerpo: {
+        pedido_id: String(pedido.json.datos.id),
+        repartidor_id: repartidor?.id,
+        costo: 25,
+        fecha_estimada: new Date(Date.now() + 86400000).toISOString(),
+      },
+    })
+    if (envio.estado !== 201) continue
+    envios++
+
+    // Uno sale a ruta para que la hoja no muestre todo en "preparando".
+    if (n === 0) {
+      await pedir('PUT', `/api/envios/${envio.json.datos.id}`, {
+        token,
+        cuerpo: { estado: 'en_ruta', tracking: 'AUR-4471' },
+      })
+    }
+  }
+
+  console.log(`  ${envios} envios`)
 
   /* --- Compras a proveedores ---------------------------------------------- */
 
