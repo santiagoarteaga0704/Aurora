@@ -349,14 +349,53 @@ existe; hoy la cola postea directo a `/api/pedidos` con clave de idempotencia.
 en el mostrador — hoy la cola los guarda y ninguna pantalla los muestra, que es
 un cabo suelto real.
 
-- [ ] **6.1** `POST /api/sync/lote`: recibe las operaciones en orden, las aplica
+- [x] **6.1** `POST /api/sync/lote`: recibe las operaciones en orden, las aplica
       una por una, y devuelve el resultado de cada una (`aplicada` o
       `conflicto` con motivo).
-- [ ] **6.2** La cola del PWA pasa a usarlo.
-- [ ] **6.3** Pantalla de conflictos en el punto de venta: qué venta quedó sin
+- [x] **6.2** La cola del PWA pasa a usarlo.
+- [x] **6.3** Pantalla de conflictos en el punto de venta: qué venta quedó sin
       aplicar y por qué.
-- [ ] **6.4** Suite que simula una venta offline cuyo stock ya no alcanza.
+- [x] **6.4** Suite que simula una venta offline cuyo stock ya no alcanza.
       Commit.
+
+---
+
+**Hecho.** 33 pruebas propias, 593 en total. Captura en `docs/capturas/conflictos.png`.
+
+Lo que cierra este endpoint es el cabo suelto de verdad: antes, una venta
+rechazada porque el stock ya no alcanzaba dejaba el motivo **únicamente en el
+navegador de esa vendedora**. Si esa persona limpiaba el almacenamiento, la
+venta desaparecía sin que quedara constancia de que había existido. Ahora cada
+operación queda en `sync_operacion` con su resultado, y se puede revisar desde
+cualquier equipo.
+
+Tres decisiones:
+
+- **En orden y de a una.** En paralelo sería más rápido y estaría mal: dos
+  ventas del mismo artículo se pasarían el stock por delante y el conflicto
+  caería en la que el azar decida, no en la segunda.
+
+- **Un conflicto no corta el lote.** Si la tercera de doce no tiene stock, las
+  otras once entran igual.
+
+- **Conflicto ≠ rechazo.** Solo el 409 es conflicto —el mundo cambió, hay algo
+  que decidir—. Un 422 significa que los datos están mal, y ofrecer rehacer una
+  venta sin artículos manda a alguien a perder el tiempo. La pantalla ofrece
+  rehacer solo en el primer caso.
+
+Dos defectos que aparecieron al correr esto:
+
+- **`ExcepcionNegocio.message` devolvía el nombre de la clase.** Cuando la
+  respuesta es un objeto —siempre, porque lleva el detalle por campo— Nest deja
+  ahí `"Excepcion Negocio"`. Cada conflicto quedaba registrado con ese texto, que
+  es justamente lo que después lee quien intenta entender qué venta se perdió.
+
+- **`datos-demo.mjs` se rompía en silencio a la mitad.** La API limita a 120
+  peticiones por minuto y por IP; la carga hace varios cientos desde una sola.
+  La segunda mitad recibía 429 y el script seguía como si nada: faltaba un
+  pedido, faltaba stock, y la única pista era que la demostración se veía
+  incompleta sin que nada lo dijera. Ahora rota la IP simulada cada 100
+  peticiones y **avisa** cuando una falla.
 
 ---
 

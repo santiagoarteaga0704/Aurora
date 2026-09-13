@@ -1585,3 +1585,97 @@
   color: var(--papel);
   animation: latir-microfono 1.6s ease-out infinite;
 }
+
+/* === Operaciones sin aplicar ==============================================
+   Cada tarjeta tiene que responder tres cosas de un vistazo: que venta era,
+   por que no entro, y que hacer ahora. La tercera es la que faltaba en la
+   pantalla de antes —que no existia— y es la unica que le sirve a quien esta
+   parado en el mostrador.
+   ========================================================================= */
+
+.conflictos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  list-style: none;
+}
+
+.conflicto {
+  padding: var(--e4) var(--e5);
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-left-width: 3px;
+  border-radius: var(--radio);
+}
+
+.conflicto--conflicto,
+.conflicto--local {
+  border-left-color: var(--ocre);
+}
+
+.conflicto--rechazado {
+  border-left-color: var(--alerta);
+}
+
+.conflicto__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+
+.conflicto__resumen {
+  font-size: 1.02rem;
+  color: var(--noche-texto);
+}
+
+.conflicto__motivo {
+  margin-top: var(--e2);
+  color: var(--ocre);
+  line-height: 1.5;
+  max-width: 70ch;
+}
+
+.conflicto__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e5);
+  margin-top: var(--e4);
+  padding-top: var(--e3);
+  border-top: 1px solid var(--noche-borde);
+}
+
+.conflicto__datos dd {
+  margin-top: 2px;
+  font-size: 0.86rem;
+  color: var(--noche-texto);
+}
+
+.conflicto__que-hacer {
+  display: block;
+  margin-top: var(--e3);
+  font-size: 0.86rem;
+  color: var(--noche-suave);
+  line-height: 1.5;
+}
+
+.conflicto__que-hacer a {
+  color: var(--laton);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.conflicto__acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+  flex-wrap: wrap;
+  margin-top: var(--e3);
+}
+
+.conflicto__acciones .conflicto__que-hacer {
+  margin-top: 0;
+  flex: 1;
+  min-width: 24ch;
+}

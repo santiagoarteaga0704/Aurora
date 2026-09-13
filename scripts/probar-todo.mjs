@@ -23,6 +23,7 @@ import { probarAsistente } from './probar-asistente.mjs'
 import { probarProbador } from './probar-probador.mjs'
 import { probarResenas } from './probar-resenas.mjs'
 import { probarNotificaciones } from './probar-notificaciones.mjs'
+import { probarSync } from './probar-sync.mjs'
 
 const suites = [
   ['Autenticacion', probarAuth],
@@ -37,6 +38,7 @@ const suites = [
   ['Probador virtual', probarProbador],
   ['Resenias', probarResenas],
   ['Notificaciones', probarNotificaciones],
+  ['Sincronizacion por lote', probarSync],
 ]
 
 async function principal() {

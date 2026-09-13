@@ -257,7 +257,14 @@ export function PuntoDeVenta() {
     const resumen = `${ticket.reduce((s, l) => s + l.cantidad, 0)} articulo(s) · ${bs(total)}`
 
     if (!enLinea) {
-      await encolar({ ruta: '/api/pedidos', cuerpo, idempotencia: clave, resumen, monto: total })
+      await encolar({
+        ruta: '/api/pedidos',
+        entidad: 'pedido',
+        cuerpo,
+        idempotencia: clave,
+        resumen,
+        monto: total,
+      })
       await refrescarCola()
       setTicket([])
       setUltimaVenta('Venta guardada. Se enviara al volver la conexion.')
@@ -278,7 +285,14 @@ export function PuntoDeVenta() {
       // la MISMA clave, asi que si el servidor alcanzo a registrarla, el reenvio
       // devuelve la que ya existe en vez de duplicarla.
       if (fallo.esDeRed) {
-        await encolar({ ruta: '/api/pedidos', cuerpo, idempotencia: clave, resumen, monto: total })
+        await encolar({
+        ruta: '/api/pedidos',
+        entidad: 'pedido',
+        cuerpo,
+        idempotencia: clave,
+        resumen,
+        monto: total,
+      })
         await refrescarCola()
         setTicket([])
         setUltimaVenta('Se corto la conexion; la venta quedo guardada para enviar.')

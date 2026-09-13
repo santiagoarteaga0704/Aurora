@@ -29,6 +29,7 @@ export function LayoutOperaciones() {
     { a: '/op/catalogo', texto: 'Catalogo', permiso: PERMISOS.PRODUCTO_VER },
     { a: '/op/reportes', texto: 'Reportes', permiso: PERMISOS.REPORTE_VER },
     { a: '/op/asistente', texto: 'Asistente', permiso: PERMISOS.IA_ASISTENTE },
+    { a: '/op/sin-aplicar', texto: 'Sin aplicar', permiso: PERMISOS.VENTA_VER },
   ].filter((s) => puede(s.permiso))
 
   return (

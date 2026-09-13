@@ -17,6 +17,23 @@ export class ExcepcionNegocio extends HttpException {
     super({ mensaje, errores }, estado)
   }
 
+  /**
+   * El mensaje que se le muestra a una persona.
+   *
+   * `HttpException.message` no sirve para esto: cuando la respuesta es un
+   * objeto —que es siempre aqui, porque lleva el detalle por campo— Nest deja
+   * en `message` el nombre de la clase. Un registro de sincronizacion que dice
+   * "Excepcion Negocio" en vez de "no alcanza el stock disponible" no le
+   * explica nada a quien esta en el mostrador tratando de entender que venta se
+   * perdio.
+   */
+  get mensaje(): string {
+    const cuerpo = this.getResponse()
+    if (typeof cuerpo === 'string') return cuerpo
+    const m = (cuerpo as { mensaje?: unknown })?.mensaje
+    return typeof m === 'string' ? m : this.message
+  }
+
   static validacion(errores: Record<string, string>, mensaje = 'Revisa los datos enviados') {
     return new ExcepcionNegocio(HttpStatus.UNPROCESSABLE_ENTITY, mensaje, errores)
   }

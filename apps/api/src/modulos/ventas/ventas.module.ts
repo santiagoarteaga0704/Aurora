@@ -22,6 +22,6 @@ import { PagosService } from './pagos.service'
   imports: [CatalogoModule, InventarioModule, CajaModule, PromocionesModule, ProbadorModule],
   controllers: [CarritoController, PedidosController, PagosController],
   providers: [CarritoService, PedidosService, PagosService],
-  exports: [PedidosService],
+  exports: [PedidosService, PagosService],
 })
 export class VentasModule {}

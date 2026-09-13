@@ -26,6 +26,7 @@ import { ReportesModule } from './modulos/reportes/reportes.module'
 import { AsistenteModule } from './modulos/asistente/asistente.module'
 import { ProbadorModule } from './modulos/probador/probador.module'
 import { ResenasModule } from './modulos/resenas/resenas.module'
+import { SyncModule } from './modulos/sync/sync.module'
 import { NotificacionesModule } from './nucleo/notificaciones/notificaciones.module'
 
 /**
@@ -66,6 +67,7 @@ import { NotificacionesModule } from './nucleo/notificaciones/notificaciones.mod
     AsistenteModule,
     ProbadorModule,
     ResenasModule,
+    SyncModule,
     NotificacionesModule,
   ],
   providers: [

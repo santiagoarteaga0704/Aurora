@@ -13,9 +13,44 @@
  */
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import { pedir, sesionAdmin } from './ayuda-pruebas.mjs'
+import { pedir as pedirCrudo, sesionAdmin } from './ayuda-pruebas.mjs'
 
-const ip = '127.0.0.1'
+
+/**
+ * Envoltorio de `pedir` para la carga de demostracion.
+ *
+ * Hace dos cosas que el `pedir` pelado no hacia, y las dos porque esta carga
+ * silenciosamente rota es peor que una que falla:
+ *
+ * 1. **Rota la IP simulada cada 100 peticiones.** La API limita a 120 por
+ *    minuto y por IP, que es un limite sano en produccion; esta carga hace
+ *    varios cientos. Con una IP fija, la segunda mitad del script recibia 429 y
+ *    seguia como si nada: faltaban pedidos, faltaba stock, y la unica pista era
+ *    que la demostracion se veia incompleta sin que nada lo dijera.
+ *
+ * 2. **Avisa cuando algo no sale bien.** No corta la carga —un paso opcional que
+ *    falle no tiene por que arruinar el resto— pero lo deja escrito.
+ */
+let cuantas = 0
+let bloque = 0
+
+function ipDelBloque() {
+  return `10.20.${Math.floor(bloque / 254)}.${(bloque % 254) + 1}`
+}
+
+async function pedir(metodo, ruta, opciones = {}) {
+  if (cuantas > 0 && cuantas % 100 === 0) bloque++
+  cuantas++
+
+  const r = await pedirCrudo(metodo, ruta, { ...opciones, ip: ipDelBloque() })
+
+  if (r.estado >= 400) {
+    const detalle = r.json?.mensaje ?? ''
+    console.log(`  ! ${metodo} ${ruta} -> ${r.estado} ${detalle}`.slice(0, 120))
+  }
+
+  return r
+}
 
 const SUCURSAL_CENTRO = 1
 const SUCURSAL_VENTURA = 2
@@ -264,7 +299,7 @@ const esperar = (ms) => new Promise((r) => setTimeout(r, ms))
 async function principal() {
   console.log('Cargando datos de demostracion...\n')
 
-  const admin = await sesionAdmin(ip)
+  const admin = await sesionAdmin(ipDelBloque())
   const token = admin.token
 
   /* --- Productos --------------------------------------------------------- */
@@ -291,7 +326,7 @@ async function principal() {
       })),
     }
 
-    const r = await pedir('POST', '/api/catalogo/productos', { ip, token, cuerpo })
+    const r = await pedir('POST', '/api/catalogo/productos', { token, cuerpo })
 
     if (r.estado === 201) {
       creados.push(r.json.datos)
@@ -329,7 +364,6 @@ async function principal() {
       ]) {
         if (cantidad === 0) continue
         await pedir('POST', '/api/inventario/ajuste', {
-          ip,
           token,
           cuerpo: {
             variante_id: v.id,
@@ -352,7 +386,6 @@ async function principal() {
     const v = producto.variantes[0]
     const base = v.precio_mayor
     await pedir('PUT', `/api/catalogo/variantes/${v.id}/escalas`, {
-      ip,
       token,
       cuerpo: {
         escalas: [
@@ -371,7 +404,6 @@ async function principal() {
   const hasta = new Date(Date.now() + 30 * 86400000).toISOString()
 
   const campania = await pedir('POST', '/api/campanias', {
-    ip,
     token,
     cuerpo: {
       nombre: 'Temporada de verano 2026',
@@ -411,7 +443,6 @@ async function principal() {
 
   for (const p of promos) {
     const r = await pedir('POST', '/api/promociones', {
-      ip,
       token,
       cuerpo: { ...p, campania_id: campaniaId, fecha_inicio: desde, fecha_fin: hasta },
     })
@@ -421,7 +452,7 @@ async function principal() {
   /* --- Personal ---------------------------------------------------------- */
 
   console.log('\nPersonal de demostracion...')
-  const roles = await pedir('GET', '/api/roles', { ip, token })
+  const roles = await pedir('GET', '/api/roles', { token })
 
   const personal = [
     { rol: 'gerente', nombre: 'Gabriela', apellido: 'Suarez', email: 'gerente@aurora.bo', sucursal: SUCURSAL_CENTRO },
@@ -435,7 +466,6 @@ async function principal() {
     const rol = roles.json?.datos?.find((r) => r.nombre === p.rol)
     if (!rol) continue
     const r = await pedir('POST', '/api/usuarios', {
-      ip,
       token,
       cuerpo: {
         rol_id: rol.id,
@@ -463,12 +493,10 @@ async function principal() {
   const sesiones = []
   for (const c of clientas) {
     let r = await pedir('POST', '/api/auth/registro', {
-      ip,
       cuerpo: { ...c, password: 'Aurora2026!' },
     })
     if (r.estado !== 201) {
       r = await pedir('POST', '/api/auth/login', {
-        ip,
         cuerpo: { email: c.email, password: 'Aurora2026!' },
       })
     }
@@ -478,7 +506,6 @@ async function principal() {
   // Mayorista con el NIT ya validado, para que la demostracion muestre los
   // precios de mayoreo sin tener que aprobarlo a mano.
   let mayorista = await pedir('POST', '/api/auth/registro', {
-    ip,
     cuerpo: {
       nombre: 'Boutique',
       apellido: 'Del Centro',
@@ -491,13 +518,11 @@ async function principal() {
   })
   if (mayorista.estado !== 201) {
     mayorista = await pedir('POST', '/api/auth/login', {
-      ip,
       cuerpo: { email: 'mayorista@ejemplo.bo', password: 'Aurora2026!' },
     })
   }
   if (mayorista.json?.datos?.usuario?.id) {
     await pedir('POST', `/api/usuarios/${mayorista.json.datos.usuario.id}/aprobar-mayorista`, {
-      ip,
       token,
       cuerpo: { aprobado: true, descuento_extra: 2 },
     })
@@ -511,7 +536,7 @@ async function principal() {
   // demostracion quedaria con una linea sola.
   const conStock = []
   for (const producto of creados) {
-    const ficha = await pedir('GET', `/api/catalogo/productos/${producto.slug}`, { ip })
+    const ficha = await pedir('GET', `/api/catalogo/productos/${producto.slug}`, {})
     const disponible = (ficha.json?.datos?.variantes ?? []).find((v) => v.disponible >= 2)
     if (disponible) conStock.push(disponible)
   }
@@ -529,7 +554,6 @@ async function principal() {
   const pedir1 = async (clienta, variantes) => {
     if (variantes.length === 0) return null
     const r = await pedir('POST', '/api/pedidos', {
-      ip,
       token: clienta.token,
       cuerpo: {
         sucursal_id: SUCURSAL_CENTRO,
@@ -556,13 +580,11 @@ async function principal() {
     const entregado = await pedir1(clienta, tomar(2))
     if (entregado) {
       await pedir('POST', `/api/pedidos/${entregado.id}/pagos`, {
-        ip,
         token,
         cuerpo: { metodo_pago_id: 4, monto: entregado.total },
       })
       for (const estado of ['preparando', 'listo', 'entregado']) {
         await pedir('POST', `/api/pedidos/${entregado.id}/estado`, {
-          ip,
           token,
           cuerpo: { estado },
         })
@@ -582,12 +604,10 @@ async function principal() {
   const paraMostrador = conStock.slice(-2)
   if (paraMostrador.length > 0) {
     await pedir('POST', '/api/caja/abrir', {
-      ip,
       token,
       cuerpo: { sucursal_id: SUCURSAL_CENTRO, monto_apertura: 500 },
     })
     const venta = await pedir('POST', '/api/pedidos', {
-      ip,
       token,
       cuerpo: {
         canal: 'tienda',
@@ -625,14 +645,12 @@ async function principal() {
   let opiniones = 0
   for (const entrega of entregados) {
     const pendientes = await pedir('GET', '/api/resenas/pendientes', {
-      ip,
       token: entrega.clienta.token,
     })
 
     for (const [n, compra] of (pendientes.json?.datos ?? []).entries()) {
       const opinion = OPINIONES[n % OPINIONES.length]
       const r = await pedir('POST', '/api/resenas', {
-        ip,
         token: entrega.clienta.token,
         cuerpo: {
           producto_id: compra.producto_id,
@@ -648,7 +666,6 @@ async function principal() {
       // los comentarios puestos, no la cola de moderacion vacia esperando a
       // que alguien entre a aprobarlos.
       await pedir('PUT', `/api/resenas/${r.json.datos.id}/moderar`, {
-        ip,
         token,
         cuerpo: { aprobada: true },
       })
@@ -656,6 +673,76 @@ async function principal() {
   }
 
   console.log(`  ${opiniones} opiniones publicadas`)
+
+  /* --- Una venta sin conexion que no entra -------------------------------- */
+
+  // La pantalla de "sin aplicar" no se puede mostrar vacia: lo que hay que
+  // poder ensenar es justamente el caso feo, dos vendedoras sin conexion
+  // vendiendo la ultima prenda. Se reproduce de verdad —por el endpoint de
+  // lote, con stock en uno— en vez de insertar una fila a mano en la tabla.
+  console.log('\nUna venta sin conexion que no entra...')
+
+  // Prenda dedicada, con UNA unidad en un solo almacen. Reusar una del catalogo
+  // no servia: el pedido busca stock en los almacenes de la sucursal y lo
+  // encontraba en el deposito, asi que las dos ventas entraban y no habia
+  // conflicto que mostrar.
+  const unica = await pedir('POST', '/api/catalogo/productos', {
+    token,
+    cuerpo: {
+      categoria_id: 2,
+      codigo: 'VES-UNICO-01',
+      nombre: 'Vestido de gala (ultima pieza)',
+      tipo_prenda: 'vestido',
+      descripcion: 'Pieza unica de muestra. Queda una sola en el piso de venta.',
+      variantes: [
+        { talla_id: 3, color_id: 1, sku: 'VES-UNICO-01-01', precio_menor: 890, precio_mayor: 712 },
+      ],
+    },
+  })
+
+  if (unica.estado === 201) {
+    const v = unica.json.datos.variantes[0]
+
+    await pedir('POST', '/api/inventario/ajuste', {
+      token,
+      cuerpo: {
+        variante_id: v.id,
+        almacen_id: PISO_CENTRO,
+        stock_contado: 1,
+        stock_minimo: 0,
+        motivo: 'Pieza unica',
+      },
+    })
+
+    const cuando = new Date(Date.now() - 40 * 60 * 1000).toISOString()
+    const sinConexion = (clave) => ({
+      idempotency_key: clave,
+      entidad: 'pedido',
+      operacion: 'crear',
+      creado_en_cliente: cuando,
+      payload: {
+        canal: 'tienda',
+        tipo_entrega: 'inmediata',
+        sucursal_id: SUCURSAL_CENTRO,
+        creado_offline: true,
+        items: [{ variante_id: v.id, cantidad: 1 }],
+        pago: { metodo_pago_id: 1, monto: 890 },
+      },
+    })
+
+    const lote = await pedir('POST', '/api/sync/lote', {
+      token,
+      dispositivo: 'caja-mostrador-demo',
+      cuerpo: { operaciones: [sinConexion('demo-entra'), sinConexion('demo-tarde')] },
+    })
+
+    const r = lote.json?.datos
+    console.log(
+      r
+        ? `  ${r.aplicadas} entro, ${r.conflictos} quedo sin aplicar`
+        : `  no se pudo (${lote.estado})`
+    )
+  }
 
   /* --- Anclajes de realidad aumentada ------------------------------------ */
 
