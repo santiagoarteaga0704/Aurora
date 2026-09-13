@@ -12,18 +12,23 @@ qué sigue.
 
 | Frente | Estado |
 |---|---|
-| Migración de stack | ✅ completa y verificada |
 | Modelo de datos | ✅ 54 tablas + 2 vistas en PostgreSQL 16 |
 | Backend (núcleo) | ✅ Prisma, JWT, RBAC, bitácora, validación, límite de tasa |
-| Backend (módulos) | ✅ **12 de 12** — 96 endpoints |
-| Pruebas de la API | ✅ 423 comprobaciones en verde |
-| PWA web | ✅ tienda y punto de venta, **funcionando sin conexión** |
-| App React Native | ⬜ sin empezar |
+| Backend (módulos) | ✅ **16 de 16** — con probador, reseñas, notificaciones y sync |
+| Pruebas de la API | ✅ **593 comprobaciones en verde**, 0 vulnerabilidades |
+| PWA web | ✅ tienda y operaciones completas, **funcionando sin conexión** |
+| Asistente por chat y voz | ✅ funciona **sin clave de IA** |
+| Probador virtual | ✅ medidas, talla recomendada, avatar |
+| Realidad aumentada | ✅ prenda sobre la cámara, con anclaje por producto |
 | Reportes | ✅ motor de plantillas, 8 reportes, gráficos y CSV |
-| Probador RA e IA | ⬜ sin empezar |
+| App React Native | 🟡 compila y empaqueta; **sin probar en un teléfono** |
+| Despliegue Azure | ⬜ bloqueado: falta la cuenta |
 | Documento PUDS | 🟡 2 de 8 capítulos |
 | Diagramas UML | 🟡 3 de ~12 |
-| Despliegue Azure | ⬜ sin empezar |
+
+**8 de las 10 tareas** del plan de cierre están hechas
+(`docs/superpowers/plans/2026-09-13-completar-aurora.md`). Quedan el despliegue
+—bloqueado— y el documento.
 
 ---
 
@@ -34,10 +39,7 @@ React Native + PostgreSQL + Azure**. Se tiraron 1.749 líneas de PHP y se
 conservó todo lo demás: el modelo de datos, el contrato REST, el diseño de
 seguridad, las plantillas de reporte y el documento.
 
-> ⚠️ **Pendiente con el docente.** El enunciado, tal como está registrado,
-> prohíbe frameworks (menciona React por nombre) y exige Flutter para el móvil.
-> El stack nuevo contradice las dos cosas, y el capítulo 5 del documento declara
-> el stack. **Es lo más urgente de confirmar.**
+**Es la decisión tomada**, y el capítulo 5 del documento la declara así.
 
 ### Cómo se migró la base
 
@@ -74,7 +76,7 @@ Las 8 plantillas de reporte se reescribieron a mano
 > **Ojo con el documento:** los capítulos escritos dicen "46 tablas". Son **54**.
 > Hay que corregirlo antes de la tabla de volumen del capítulo 4.
 
-### Módulos (96 endpoints)
+### Módulos (120 endpoints)
 
 | Módulo | Endpoints | Qué resuelve |
 |---|---|---|
@@ -90,6 +92,11 @@ Las 8 plantillas de reporte se reescribieron a mano
 | `clientes` | 4 | Direcciones de entrega |
 | `reportes` | 5 | Motor de plantillas, historial y exportación a CSV |
 | `salud` | 1 | Estado del servicio, lo consulta el PWA para saber si está en línea |
+| `probador` | 5 | Medidas, talla recomendada, avatar, anclaje de RA, pruebas |
+| `resenas` | 5 | Opiniones de quien compró, con moderación del comentario |
+| `notificaciones` | 4 | Avisos de pedido, pago, devolución y stock bajo |
+| `sync` | 3 | Lote de operaciones sin conexión y sus conflictos |
+| `asistente` | 4 | Reportes por chat y voz |
 
 Contrato REST autodocumentado en `/api/docs`.
 
@@ -189,6 +196,39 @@ personal punto de venta, inventario con ajuste, pedidos, caja y catálogo.
 
 ---
 
+### Lo que se cerró el 13 de septiembre
+
+Ocho tareas del plan, en este orden y cada una con su commit:
+
+| Tarea | Qué quedó | Pruebas propias |
+|---|---|---|
+| Asistente | Chat y voz (`es-BO`), con intérprete propio | 37 |
+| Probador virtual | Medidas, talla por categoría, avatar | 43 |
+| Realidad aumentada | Prenda sobre la cámara, anclaje por producto | 9 |
+| Reseñas | Solo opina quien compró y recibió | 27 |
+| Notificaciones | Avisos automáticos y campanita | 21 |
+| Sincronización | `POST /api/sync/lote` y pantalla de conflictos | 33 |
+| Pantallas del PWA | Usuarios, roles, compras, devoluciones, envíos, promociones, mi cuenta | — |
+| App móvil | Expo: vender con lector, stock, hoja de ruta | — |
+
+Seis defectos que aparecieron **mirando las pantallas**, no programando:
+
+1. `Grafico` dibujaba una torta para cualquier `visual` que no reconociera,
+   `tabla` incluido. Afectaba también a Reportes.
+2. El pago con tarjeta en línea era el único que no avisaba: el aviso estaba
+   solo en `resolver` y ese caso se confirma solo.
+3. `ExcepcionNegocio.message` devolvía el nombre de la clase, así que cada
+   conflicto de sincronización quedaba registrado como «Excepcion Negocio».
+4. Una fecha sin hora se mostraba **un día antes** en toda la aplicación:
+   Bolivia es UTC−4 y JavaScript parsea `"2026-09-13"` como medianoche UTC.
+5. `datos-demo.mjs` se rompía en silencio a la mitad — el límite de 120
+   peticiones por minuto y por IP — y elegía prendas por su stock *total*
+   cuando el pedido sale del piso de venta de una sucursal.
+6. En la app móvil había **dos copias de React y dos de React Native**, la causa
+   clásica del «Invalid hook call».
+
+---
+
 ## Cómo levantar todo
 
 ```bash
@@ -200,8 +240,18 @@ npm run build
 
 npm run api                     # API en el 8000
 npm run web                     # PWA en el 5180
-npm run pruebas                 # 423 comprobaciones
+npm run pruebas                 # 593 comprobaciones
+
+npm run dev -w @aurora/movil    # Metro; se escanea el QR con Expo Go
 ```
+
+> Después de `npm run db:cargar` **hay que reiniciar la API**: Prisma cachea
+> sentencias preparadas contra el esquema viejo y falla de formas que no dicen
+> por qué.
+
+Para sacar capturas sin manos: `node scripts/captura.mjs op/compras compras`.
+Desde Git Bash la ruta va **sin barra inicial** — con ella, MSYS la reescribe
+como ruta de Windows antes de que Node la lea.
 
 Para probar el modo sin conexión: entrar al punto de venta con la API arriba
 (para que baje el catálogo), apagar la API, y seguir vendiendo.
@@ -224,21 +274,17 @@ Para probar el modo sin conexión: entrar al punto de venta con la API arriba
 
 ## Lo que sigue — 10 días
 
+Al 13 de septiembre ya está hecho todo el software que no depende de terceros.
+
 | Días | Trabajo |
 |---|---|
-| 14–16 sep | Probador virtual, realidad aumentada y asistente de IA (los reportes por chat y voz se montan sobre el motor ya hecho) |
-| 17–19 sep | React Native y APK con EAS |
-| 20–21 sep | Despliegue en Azure |
-| 22–23 sep | Capítulos 2, 4, 5 y 6, bibliografía, anexos y regenerar el entregable |
+| 14–19 sep | **Capítulos 2, 4, 5 y 6**, bibliografía y anexos |
+| Cuando haya cuenta | Despliegue en Azure (Tarea 9 del plan) |
+| Cuando haya teléfono | Abrir la app móvil con Expo Go y cobrar una venta de verdad |
+| 22–23 sep | Portada, regenerar el entregable, repaso final |
 
-Ni el backend ni el PWA son el riesgo ya. Lo que queda es el probador con RA, la
-IA, el móvil y el despliegue. Si hay que recortar, el orden para sacrificar es:
-realidad aumentada con superposición simple en vez de modelo 3D primero, después
-profundidad del asistente de IA, y **nunca el documento**.
-
-Pantallas del PWA que quedaron fuera y conviene sumar si sobra tiempo:
-administración de usuarios y roles, compras, devoluciones y envíos. La API las
-soporta enteras; les falta la interfaz.
+**El riesgo ya no es el software: es el documento.** Si hay que recortar algo,
+nunca es el documento.
 
 ### Documento
 
@@ -248,7 +294,7 @@ soporta enteras; les falta la interfaz.
 | Cap. 3 Análisis | Paquetes, diagramas de comunicación por ciclo, análisis de clases |
 | Cap. 4 Diseño | Despliegue, capas, clases, mapeo entidad-tabla, **tabla de volumen de las 54 tablas**, script, diagrama relacional |
 | Cap. 5 Implementación | **Reescribir con el stack nuevo**, más el enlace del repositorio y del APK |
-| Cap. 6 Pruebas | Formalizar las 423 comprobaciones ya automatizadas |
+| Cap. 6 Pruebas | Formalizar las **593** comprobaciones ya automatizadas |
 | Bibliografía y Anexos | Referencias y código fuente |
 
 Los diagramas de despliegue y de capas hay que rehacerlos: apuntaban a PHP en
@@ -258,17 +304,48 @@ Hostinger.
 
 ## Pendientes que dependen de terceros
 
-1. **Confirmar el stack con el docente.** Lo más urgente: si dice que no, quedan
-   10 días para volver atrás.
-
-2. **Cuenta de Azure.** Activar Azure for Students con el correo de la UAGRM (no
+1. **Cuenta de Azure.** Activar Azure for Students con el correo de la UAGRM (no
    pide tarjeta, da 100 USD). Sin eso no se puede provisionar nada.
 
-3. **Datos de la portada.** Faltan el número de grupo, el segundo apellido y el
+2. **Datos de la portada.** Faltan el número de grupo, el segundo apellido y el
    registro de Santiago, y los nombres y registros de los demás integrantes.
    Están en blanco en `docs/documento/00-portada.html`.
 
-4. ~~**Repositorio remoto.**~~ Resuelto: https://github.com/santiagoarteaga0704/Aurora
+3. ~~**Repositorio remoto.**~~ Resuelto: https://github.com/santiagoarteaga0704/Aurora
 
-5. **Clave de IA.** `ANTHROPIC_API_KEY` en `apps/api/.env` está vacía. Decidir
-   entre esa y Azure OpenAI, que encaja mejor con el resto del despliegue.
+4. **Clave de IA — PENDIENTE, decidir más adelante.** `ANTHROPIC_API_KEY` en
+   `apps/api/.env` está vacía y el asistente corre entero con su intérprete
+   propio. **No bloquea nada.**
+
+   Qué cambia tenerla, medido contra el sistema corriendo el 13 de septiembre:
+
+   | Pregunta | Hoy, sin clave |
+   |---|---|
+   | «cuánto vendimos ayer» | ✅ `ventas_por_rango`, confianza 0.9 |
+   | «qué hay que reponer» | ✅ `stock_bajo`, confianza 0.9 |
+   | «a qué hora vendemos más» | ✅ `ventas_por_hora`, confianza 0.9 |
+   | «quién vendió más este mes» | ✅ `desempeno_vendedores`, confianza 0.9 |
+   | «decime si nos fue mejor que el mes pasado» | ❌ no reconoce |
+   | «qué prendas están por agotarse en la tienda del centro» | ❌ no reconoce |
+   | «hay algo que no se esté vendiendo» | ❌ no reconoce |
+
+   El intérprete compara contra una lista de sinónimos: no es comprensión, es
+   coincidencia de texto. Lo que agregaría el modelo es traducir esas tres
+   últimas a un código de plantilla. **El modelo nunca escribe SQL** — elige uno
+   de los 8 códigos que ya existen y sus parámetros; la ejecución sigue pasando
+   por el motor de reportes, con los mismos permisos.
+
+   Cuando se retome, hay tres caminos:
+
+   - **Ninguna clave** (como está). Menos cosas que pueden fallar en la defensa,
+     y el intérprete es código propio que se puede explicar línea por línea. La
+     pantalla ya declara su estado: «Solo intérprete propio: no hay clave de IA
+     configurada».
+   - **Clave de Claude.** El código está escrito y probado: se pega en
+     `apps/api/.env`, se reinicia la API y anda.
+   - **Azure OpenAI.** Entra en los 100 USD de Azure for Students, pero hay que
+     adaptar `ModeloService`.
+
+   Alternativa sin clave y sin dependencia externa: **agregar los sinónimos que
+   faltan** en `SINONIMOS_REPORTE` (`packages/contratos/src/asistente.ts`). No
+   cubre todo, pero cubre las formulaciones que de verdad se usan.
