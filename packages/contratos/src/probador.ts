@@ -163,3 +163,59 @@ export const NOMBRE_TIPO_CUERPO: Record<TipoCuerpo, string> = {
   rectangulo: 'Rectángulo',
   ovalado: 'Ovalado',
 }
+
+// --- Realidad aumentada -----------------------------------------------------
+
+/**
+ * Donde se apoya la prenda sobre el cuerpo.
+ *
+ * Todo va en fracciones del alto del encuadre, no en pixeles: la misma prenda
+ * tiene que caer bien en un celular vertical y en una notebook, y el servidor
+ * no sabe —ni tiene por que saber— de que tamanio es la camara de quien mira.
+ *
+ * `hombros` y `bajo` delimitan hasta donde llega la prenda; `ancho_hombros` y
+ * `ancho_bajo` dan la forma. Una blusa y un vestido de la misma talla se
+ * diferencian solo en estos cuatro numeros.
+ */
+export interface AnclajePrenda {
+  /** Altura del borde superior, 0 = arriba del encuadre. */
+  hombros: number
+  /** Altura del borde inferior. */
+  bajo: number
+  ancho_hombros: number
+  ancho_bajo: number
+  /** Cuanto se estrecha a la altura de la cintura, 0 = nada. */
+  entalle: number
+  /** Donde cae la cintura entre `hombros` y `bajo`, 0 a 1. */
+  cintura: number
+}
+
+export interface PrendaRa {
+  variante_id: number
+  producto: string
+  color: string
+  color_hex: string
+  talla: string
+  tipo_prenda: string
+  /** PNG con transparencia, cuando el producto lo tenga cargado. */
+  url_textura: string | null
+  anclaje: AnclajePrenda
+  escala_base: number
+}
+
+/**
+ * Anclaje por defecto segun el tipo de prenda.
+ *
+ * Existe para que la RA funcione con el catalogo tal como esta: `anclaje_json`
+ * es opcional y casi ningun producto lo tiene cargado todavia. Poner una prenda
+ * aproximada es mucho mejor que no poner ninguna, y cuando alguien cargue el
+ * anclaje fino de un producto, ese gana sin tocar codigo.
+ */
+export const ANCLAJE_POR_TIPO: Record<string, AnclajePrenda> = {
+  superior: { hombros: 0.30, bajo: 0.60, ancho_hombros: 0.26, ancho_bajo: 0.24, entalle: 0.12, cintura: 0.75 },
+  vestido: { hombros: 0.30, bajo: 0.86, ancho_hombros: 0.26, ancho_bajo: 0.34, entalle: 0.22, cintura: 0.35 },
+  inferior: { hombros: 0.56, bajo: 0.95, ancho_hombros: 0.25, ancho_bajo: 0.20, entalle: 0.0, cintura: 0.1 },
+  abrigo: { hombros: 0.28, bajo: 0.70, ancho_hombros: 0.30, ancho_bajo: 0.30, entalle: 0.08, cintura: 0.6 },
+}
+
+export const ANCLAJE_NEUTRO: AnclajePrenda = ANCLAJE_POR_TIPO.superior

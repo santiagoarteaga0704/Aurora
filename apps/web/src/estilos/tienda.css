@@ -1878,3 +1878,166 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* === Realidad aumentada ===================================================
+   Pantalla completa y fondo oscuro: lo unico que importa mientras la camara
+   esta abierta es la imagen, y el papel hueso de la tienda le compite.
+   ========================================================================= */
+
+.ra {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--noche);
+  color: var(--noche-texto);
+}
+
+.ra__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  padding: var(--e4) var(--e5);
+  border-bottom: 1px solid var(--noche-borde);
+}
+
+.ra__titulo {
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--noche-suave);
+}
+
+.ra__cerrar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--noche-borde);
+  color: var(--noche-texto);
+  font-size: 0.9rem;
+  transition: var(--transicion);
+}
+
+.ra__cerrar:hover {
+  border-color: var(--laton);
+  color: var(--laton);
+}
+
+.ra__escena {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* El video alimenta al lienzo; lo que se mira es el lienzo. */
+.ra__video {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ra__lienzo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  touch-action: none;
+  cursor: grab;
+}
+
+.ra__lienzo:active {
+  cursor: grabbing;
+}
+
+.ra__esperando,
+.ra__guia {
+  position: absolute;
+  bottom: var(--e5);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background: rgba(22, 18, 15, 0.72);
+  border-radius: 99px;
+  font-size: 0.82rem;
+  color: var(--noche-texto);
+  text-align: center;
+  max-width: 88%;
+}
+
+.ra__problema {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e6);
+  text-align: center;
+  max-width: 44ch;
+}
+
+.ra__problema-titulo {
+  font-family: var(--display);
+  font-size: 1.5rem;
+}
+
+.ra__problema-detalle {
+  color: var(--noche-suave);
+  line-height: 1.55;
+}
+
+.ra__controles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e5);
+  padding: var(--e5);
+  border-top: 1px solid var(--noche-borde);
+}
+
+.ra__escala {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+}
+
+.ra__escala input {
+  width: 140px;
+  accent-color: var(--laton);
+}
+
+.ra__disparo {
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--papel);
+  border: 3px solid var(--noche);
+  box-shadow: 0 0 0 2px var(--papel);
+  transition: var(--transicion);
+}
+
+.ra__disparo:hover:not(:disabled) {
+  background: var(--laton);
+}
+
+.ra__disparo--inactivo {
+  opacity: 0.35;
+}
+
+.ra__aclaracion {
+  padding: 0 var(--e5) var(--e4);
+  font-size: 0.76rem;
+  color: var(--noche-suave);
+  text-align: center;
+}
+
+.ficha__ra {
+  margin-top: var(--e4);
+  width: 100%;
+}

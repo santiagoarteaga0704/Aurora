@@ -7,6 +7,7 @@ import { conMensaje } from '../../nucleo/respuesta/sobre'
 import {
   CarritoSesion,
   Opcional,
+  Publico,
   UsuarioActual,
   UsuarioSiHay,
 } from '../../nucleo/autenticacion/decoradores'
@@ -14,6 +15,7 @@ import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
 import { MedidasService } from './medidas.service'
 import { TallasService } from './tallas.service'
 import { PruebasService } from './pruebas.service'
+import { RaService } from './ra.service'
 
 /**
  * Probador virtual.
@@ -28,7 +30,8 @@ export class ProbadorController {
   constructor(
     private readonly medidas: MedidasService,
     private readonly tallas: TallasService,
-    private readonly pruebas: PruebasService
+    private readonly pruebas: PruebasService,
+    private readonly ra: RaService
   ) {}
 
   @Get('mis-medidas')
@@ -75,6 +78,19 @@ export class ProbadorController {
     const clienteId = await this.medidas.exigirCliente(usuario)
     const producto = productoId && /^\d+$/.test(productoId) ? Number(productoId) : undefined
     return this.tallas.recomendar(clienteId, categoriaId, producto)
+  }
+
+  /**
+   * Lo que hace falta para dibujar la prenda sobre la camara.
+   *
+   * Publico, igual que la ficha de producto: probarse algo es lo que pasa antes
+   * de decidir registrarse, no despues.
+   */
+  @Get('prendas/:varianteId')
+  @Publico()
+  @ApiOperation({ summary: 'Anclaje y textura de una prenda para realidad aumentada' })
+  prenda(@Param('varianteId', ParseIntPipe) varianteId: number) {
+    return this.ra.prenda(varianteId)
   }
 
   /**

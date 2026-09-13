@@ -11,6 +11,8 @@
  * Crea: 14 productos con sus variantes, stock en dos sucursales, una campania
  * con promociones, personal de mostrador y algunos pedidos en distintos estados.
  */
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { pedir, sesionAdmin } from './ayuda-pruebas.mjs'
 
 const ip = '127.0.0.1'
@@ -569,6 +571,30 @@ async function principal() {
   }
 
   console.log(`  ${pedidos} pedidos`)
+
+  /* --- Anclajes de realidad aumentada ------------------------------------ */
+
+  // Van por SQL y no por API porque `producto_prenda_3d` es una tabla de datos
+  // de presentacion, no de negocio: no hay pantalla que la administre ni tiene
+  // sentido inventarle un endpoint solo para sembrarla.
+  //
+  // Son cuatro productos y no los treinta a proposito: alcanzan para demostrar
+  // que el anclaje propio gana sobre el generico por tipo de prenda, y el resto
+  // del catalogo prueba justamente el camino generico.
+  console.log('\nAnclajes de realidad aumentada...')
+  const anclaje = readFileSync('database/prendas-3d.sql', 'utf8')
+  try {
+    execFileSync(
+      'docker',
+      ['exec', '-i', 'aurora-db', 'psql', '-U', 'aurora', '-d', 'aurora', '-v', 'ON_ERROR_STOP=1', '-q'],
+      { input: anclaje, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+    )
+    console.log('  4 prendas con anclaje propio')
+  } catch (e) {
+    // No es motivo para tumbar la carga: sin anclaje propio, la RA sigue
+    // andando con el generico por tipo de prenda.
+    console.log(`  no se pudieron cargar (${(e.stderr || e.message).trim().split('\n')[0]})`)
+  }
 
   await esperar(100)
 

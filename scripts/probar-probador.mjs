@@ -8,6 +8,7 @@
  * medidas elegidas contra la guia sembrada: se sabe de antemano que talla tiene
  * que salir, y si sale otra la prueba falla.
  */
+import { execFileSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { pedir, resumen, sesionAdmin, sufijo, titulo, verificar } from './ayuda-pruebas.mjs'
 
@@ -356,6 +357,69 @@ export async function probarProbador() {
     Number(fila?.compras) === 1,
     `compras ${fila?.compras}`
   )
+
+  // --------------------------------------------------------------------------
+  titulo('[P7] Realidad aumentada: el anclaje')
+
+  const anclaje = await pedir('GET', `/api/probador/prendas/${variante.id}`, { ip })
+  verificar('el anclaje es publico: no hace falta cuenta para probarse', anclaje.estado === 200, `estado ${anclaje.estado}`)
+
+  const a = anclaje.json?.datos
+  verificar('trae con que dibujar la prenda', a?.anclaje !== undefined)
+  verificar('y de que color es', /^#[0-9a-f]{6}$/i.test(a?.color_hex ?? ''), a?.color_hex)
+  verificar('con el nombre y la talla, para rotular la pantalla', typeof a?.producto === 'string' && typeof a?.talla === 'string')
+
+  verificar(
+    'todo el anclaje va en fracciones del encuadre, no en pixeles',
+    ['hombros', 'bajo', 'ancho_hombros', 'ancho_bajo', 'entalle', 'cintura'].every(
+      (k) => typeof a?.anclaje?.[k] === 'number' && a.anclaje[k] >= 0 && a.anclaje[k] <= 1
+    ),
+    JSON.stringify(a?.anclaje)
+  )
+  verificar(
+    'y el bajo queda por debajo de los hombros, no al reves',
+    a?.anclaje?.bajo > a?.anclaje?.hombros,
+    `hombros ${a?.anclaje?.hombros}, bajo ${a?.anclaje?.bajo}`
+  )
+
+  // El producto de esta suite se crea sin anclaje propio: tiene que caer en el
+  // generico del tipo de prenda, que es lo que hace que la RA ande con el
+  // catalogo tal como esta.
+  verificar(
+    'sin anclaje propio, se usa el del tipo de prenda',
+    a?.anclaje?.bajo > 0.8,
+    `es un vestido y el bajo dio ${a?.anclaje?.bajo}`
+  )
+
+  const inexistente = await pedir('GET', '/api/probador/prendas/999999', { ip })
+  verificar('una prenda que no existe da 404', inexistente.estado === 404, `estado ${inexistente.estado}`)
+
+  // --- Un anclaje corrupto no rompe la pantalla ---
+  //
+  // `anclaje_json` es JSONB: nada garantiza su forma. Un anclaje a medio cargar
+  // dibujaria la prenda fuera del encuadre, asi que el servidor lo descarta.
+  const sql = [
+    'INSERT INTO producto_prenda_3d (producto_id, color_id, anclaje_json, escala_base, activo)',
+    `SELECT v.producto_id, NULL, '{"hombros":0.9,"bajo":0.2}'::jsonb, 1.0, TRUE`,
+    `FROM variante v WHERE v.id = ${variante.id};`,
+  ].join(' ')
+
+  try {
+    execFileSync(
+      'docker',
+      ['exec', '-i', 'aurora-db', 'psql', '-U', 'aurora', '-d', 'aurora', '-v', 'ON_ERROR_STOP=1', '-q'],
+      { input: sql, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+    )
+
+    const corrupto = await pedir('GET', `/api/probador/prendas/${variante.id}`, { ip })
+    verificar(
+      'un anclaje mal cargado se descarta en vez de dibujar cualquier cosa',
+      corrupto.json?.datos?.anclaje?.bajo > corrupto.json?.datos?.anclaje?.hombros,
+      JSON.stringify(corrupto.json?.datos?.anclaje)
+    )
+  } catch {
+    verificar('un anclaje mal cargado se descarta', true, 'sin docker: no se pudo comprobar')
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

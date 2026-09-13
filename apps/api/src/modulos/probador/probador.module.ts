@@ -3,6 +3,7 @@ import { ProbadorController } from './probador.controller'
 import { MedidasService } from './medidas.service'
 import { TallasService } from './tallas.service'
 import { PruebasService } from './pruebas.service'
+import { RaService } from './ra.service'
 
 /**
  * Probador virtual.
@@ -13,7 +14,7 @@ import { PruebasService } from './pruebas.service'
  */
 @Module({
   controllers: [ProbadorController],
-  providers: [MedidasService, TallasService, PruebasService],
+  providers: [MedidasService, TallasService, PruebasService, RaService],
   exports: [PruebasService],
 })
 export class ProbadorModule {}

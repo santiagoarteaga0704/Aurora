@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import type { ProductoFicha, RespuestaRecomendacion, VarianteResumen } from '@aurora/contratos'
 import { esRecomendacion } from '@aurora/contratos'
 import { api } from '../api/cliente'
 import { useSesion } from '../sesion/SesionContexto'
 import { useCarrito } from './CarritoContexto'
+import { hayCamara, RealidadAumentada } from './RealidadAumentada'
 import { Cargando, ErrorCarga } from '../componentes/Estados'
 import { bs, clases, numero } from '../util/formato'
 import { TEMPORADA, TIPO_PRENDA } from '../util/estados'
@@ -32,6 +33,7 @@ export function Producto() {
   const { slug = '' } = useParams()
   const { agregar } = useCarrito()
   const { perfil, esPersonal } = useSesion()
+  const [params] = useSearchParams()
 
   const [ficha, setFicha] = useState<ProductoFicha | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +46,11 @@ export function Producto() {
   const [categoriaId, setCategoriaId] = useState<number | null>(null)
   const [talla, setTalla] = useState<RespuestaRecomendacion | null>(null)
   const [buscandoTalla, setBuscandoTalla] = useState(false)
+  const [probandoRa, setProbandoRa] = useState(false)
+
+  // Se resuelve una vez y no en cada pintado: `hayCamara` mira `navigator`, que
+  // no cambia, y consultarlo en el render haria parpadear el boton.
+  const [conCamara] = useState(hayCamara)
 
   const cargar = useCallback(async () => {
     setError(null)
@@ -82,9 +89,19 @@ export function Producto() {
 
   // Al cambiar de color, la talla elegida deja de tener sentido.
   useEffect(() => {
-    setVarianteElegida(null)
+    // Salvo cuando se entra con ?ra=1: ahi se toma la primera con stock, o el
+    // enlace directo no abriria nada. Si despues llega una recomendacion, gana
+    // ella —la elige el efecto de mas abajo—.
+    if (params.get('ra') === '1') {
+      setVarianteElegida(
+        ficha?.variantes.find((v) => v.color === colorElegido && v.activo && v.disponible > 0)?.id ??
+          null
+      )
+    } else {
+      setVarianteElegida(null)
+    }
     setAgregado(false)
-  }, [colorElegido])
+  }, [colorElegido, ficha, params, perfil])
 
   /**
    * El id de la categoria, que la ficha no trae.
@@ -162,6 +179,19 @@ export function Producto() {
   useEffect(() => {
     if (ficha && perfil && !esPersonal) void verMiTalla()
   }, [ficha, perfil, esPersonal, verMiTalla])
+
+  /**
+   * `?ra=1` abre el probador de camara directamente.
+   *
+   * Sirve para compartir un enlace de "probate esto" que cae donde tiene que
+   * caer, y de paso hace que la pantalla se pueda capturar sin manos.
+   *
+   * Espera a que haya una talla elegida: sin variante no hay prenda concreta
+   * que dibujar, y la ficha elige sola en cuanto llega la recomendacion.
+   */
+  useEffect(() => {
+    if (params.get('ra') === '1' && varianteElegida !== null && conCamara) setProbandoRa(true)
+  }, [params, varianteElegida, conCamara])
 
   /**
    * Al recibir la talla, se selecciona sola si esta disponible.
@@ -325,6 +355,16 @@ export function Producto() {
                   </div>
                 ))}
 
+              {variante && conCamara && (
+                <button
+                  type="button"
+                  className="boton boton--linea ficha__ra"
+                  onClick={() => setProbandoRa(true)}
+                >
+                  Probar en cámara
+                </button>
+              )}
+
               {variante && (
                 <p className="ficha__stock">
                   {variante.disponible > 5
@@ -336,6 +376,10 @@ export function Producto() {
               )}
             </div>
           </div>
+
+          {probandoRa && varianteElegida !== null && (
+            <RealidadAumentada varianteId={varianteElegida} onCerrar={() => setProbandoRa(false)} />
+          )}
 
           {guiaAbierta && (
             <div className="guia-tallas">

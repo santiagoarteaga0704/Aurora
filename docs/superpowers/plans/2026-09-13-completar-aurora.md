@@ -225,14 +225,40 @@ y no es lo que se está evaluando.
 - Modificar: `apps/api/src/modulos/probador/probador.controller.ts` (endpoint de
   prenda 3D/anclaje)
 
-- [ ] **3.1** Endpoint que devuelve el anclaje de una variante.
-- [ ] **3.2** Componente de cámara con permiso, encuadre y captura.
-- [ ] **3.3** Superposición de la prenda escalada por el anclaje.
-- [ ] **3.4** Botón "Probar en RA" en la ficha, solo si el navegador tiene
+- [x] **3.1** Endpoint que devuelve el anclaje de una variante.
+- [x] **3.2** Componente de cámara con permiso, encuadre y captura.
+- [x] **3.3** Superposición de la prenda escalada por el anclaje.
+- [x] **3.4** Botón "Probar en RA" en la ficha, solo si el navegador tiene
       cámara. Commit.
 
-**Verificación:** no se puede automatizar sin cámara. Se verifica a mano y se
-deja anotado en `ESTADO.md` como verificación manual.
+**Verificación:** ~~no se puede automatizar sin cámara~~ — **sí se pudo.**
+Chromium sabe fabricar un video sintético y aceptar el permiso solo
+(`--use-fake-device-for-media-stream`), así que `scripts/captura.mjs --camara`
+abre el probador y lo fotografía. La captura está en
+`docs/capturas/ra-camara.png`: se ve el video de la cámara, la prenda dibujada
+en su color real y el anclaje sembrado de ese vestido. No queda nada como
+verificación manual.
+
+**Hecho.** 9 pruebas propias del anclaje, 512 en total.
+
+Tres decisiones que conviene tener a mano para la defensa:
+
+- **No hay detección de pose, y es deliberado.** El navegador no trae ninguna
+  API que la haga; meterla significaba un modelo de visión por computadora
+  servido desde un CDN ajeno, en una aplicación que es una PWA y tiene que
+  andar sin conexión. En su lugar, la prenda se ancla por proporciones y se
+  arrastra hasta que calce. Es menos vistoso y es honesto.
+
+- **El anclaje propio es opcional.** `anclaje_json` está cargado para cuatro
+  productos; el resto usa el genérico del tipo de prenda. Exigir que alguien
+  midiera a mano los treinta antes de encender la RA la habría dejado apagada
+  para siempre. Cuando se carga el fino de un producto, ese gana sin tocar
+  código, y hay una prueba que lo comprueba.
+
+- **La prenda es una forma en su color real, no una foto.** `url_textura` está
+  previsto y el componente lo usa si existe, pero hoy no hay texturas cargadas.
+  La pantalla lo dice con todas las letras en vez de dejar creer que es la
+  prenda fotografiada.
 
 ---
 

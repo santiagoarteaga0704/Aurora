@@ -4,6 +4,7 @@
  *   node scripts/captura.mjs op/asistente asistente
  *   node scripts/captura.mjs "op/asistente?p=que hay que reponer" asistente-stock
  *   node scripts/captura.mjs op/pos pos --usuario vendedora@aurora.bo
+ *   node scripts/captura.mjs "producto/vestido-midi-plisado?ra=1" ra --camara
  *
  * La ruta va SIN barra inicial: con ella, Git Bash la reescribe como ruta de
  * Windows antes de que Node la lea. Con barra funciona igual desde PowerShell.
@@ -66,7 +67,13 @@ async function abrirSesion(usuario, clave) {
       const r = await fetch(`${WEB}/api/auth/yo`, {
         headers: { Authorization: `Bearer ${guardada.datos.token}` },
       })
-      if (r.ok) return guardada
+
+      // No alcanza con que el token sea valido: tiene que ser de ESTA persona.
+      // Despues de recargar la base, el id 7 del token sigue existiendo pero es
+      // otra clienta, y la captura salia con el nombre de alguien que no era el
+      // pedido sin que nada fallara.
+      const quien = r.ok ? await r.json().catch(() => null) : null
+      if (quien?.datos?.email === usuario) return guardada
     } catch {
       /* cache invalida: se pide una nueva */
     }
@@ -135,6 +142,21 @@ async function capturar() {
   // aplicacion, pide el perfil y recien despues consulta lo que se quiere ver.
   const espera = argumento('espera', '13000')
 
+  /**
+   * Camara de mentira para poder capturar el probador de RA.
+   *
+   * Chromium sabe fabricar un video sintetico y aceptar el permiso solo. Sin
+   * esto la pantalla de RA no se puede capturar sin una persona delante, y
+   * quedaria sin ninguna verificacion visual.
+   */
+  const camara = process.argv.includes('--camara')
+    ? [
+        '--use-fake-device-for-media-stream',
+        '--use-fake-ui-for-media-stream',
+        '--allow-file-access-from-files',
+      ]
+    : []
+
   mkdirSync(SALIDA, { recursive: true })
 
   const sesion = await abrirSesion(usuario, clave)
@@ -191,6 +213,7 @@ location.replace(${JSON.stringify(ruta)})
           '--no-first-run',
           '--no-default-browser-check',
           '--hide-scrollbars',
+          ...camara,
           `--window-size=${ancho},${alto}`,
           ...extra,
           url,
