@@ -16,6 +16,12 @@ import { SaludModule } from './modulos/salud/salud.module'
 import { CatalogoModule } from './modulos/catalogo/catalogo.module'
 import { InventarioModule } from './modulos/inventario/inventario.module'
 import { VentasModule } from './modulos/ventas/ventas.module'
+import { ComprasModule } from './modulos/compras/compras.module'
+import { CajaModule } from './modulos/caja/caja.module'
+import { PromocionesModule } from './modulos/promociones/promociones.module'
+import { PosventaModule } from './modulos/posventa/posventa.module'
+import { AdministracionModule } from './modulos/administracion/administracion.module'
+import { ClientesModule } from './modulos/clientes/clientes.module'
 
 /**
  * Raiz de la API.
@@ -27,8 +33,7 @@ import { VentasModule } from './modulos/ventas/ventas.module'
  *   3. Permisos           - necesita la sesion ya resuelta, asi que va despues.
  *
  * Los modulos de negocio se van sumando a `imports` a medida que se implementan:
- *   compras, caja, envios, devoluciones, promociones, probador, ia,
- *   reportes y sync.
+ *   probador, ia, reportes y sync.
  */
 @Module({
   imports: [
@@ -46,6 +51,12 @@ import { VentasModule } from './modulos/ventas/ventas.module'
     CatalogoModule,
     InventarioModule,
     VentasModule,
+    ComprasModule,
+    CajaModule,
+    PromocionesModule,
+    PosventaModule,
+    AdministracionModule,
+    ClientesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

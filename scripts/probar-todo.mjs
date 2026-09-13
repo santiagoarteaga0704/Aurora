@@ -15,12 +15,18 @@ import { probarAuth } from './probar-api.mjs'
 import { probarCatalogo } from './probar-catalogo.mjs'
 import { probarInventario } from './probar-inventario.mjs'
 import { probarVentas } from './probar-ventas.mjs'
+import { probarComprasYCaja } from './probar-compras-caja.mjs'
+import { probarAdministracion } from './probar-administracion.mjs'
+import { probarPosventa } from './probar-posventa.mjs'
 
 const suites = [
   ['Autenticacion', probarAuth],
   ['Catalogo', probarCatalogo],
   ['Inventario y transferencias', probarInventario],
   ['Carrito, pedidos y pagos', probarVentas],
+  ['Compras y caja', probarComprasYCaja],
+  ['Administracion, roles y permisos', probarAdministracion],
+  ['Promociones, devoluciones y envios', probarPosventa],
 ]
 
 async function principal() {

@@ -14,6 +14,7 @@ import { BitacoraService, type ContextoPeticion } from '../../nucleo/bitacora/bi
 import { PermisosService } from '../../nucleo/autenticacion/permisos.service'
 import { PreciosService } from '../catalogo/precios.service'
 import { StockService, type Tx } from '../inventario/stock.service'
+import { PromocionesService } from '../promociones/promociones.service'
 import { CarritoService } from './carrito.service'
 import { aNumero } from '../../nucleo/util/decimal'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
@@ -25,6 +26,7 @@ export class PedidosService {
     private readonly precios: PreciosService,
     private readonly stock: StockService,
     private readonly carrito: CarritoService,
+    private readonly promociones: PromocionesService,
     private readonly permisos: PermisosService,
     private readonly bitacora: BitacoraService
   ) {}
@@ -141,8 +143,21 @@ export class PedidosService {
     })
 
     const subtotal = PreciosService.centavos(lineas.reduce((s, l) => s + l.subtotal, 0))
-    const descuento = 0 // lo completara el modulo de promociones
-    const total = PreciosService.centavos(subtotal - descuento + datos.costo_envio)
+
+    // El descuento lo decide el servidor. Del cliente solo puede venir el codigo
+    // de cupon; el monto, nunca.
+    const promo = await this.promociones.calcular({
+      lineas,
+      subtotal,
+      costo_envio: datos.costo_envio,
+      canal: datos.canal,
+      modalidad: modalidad === 'mayoreo' ? 'mayoreo' : 'menudeo',
+      cupon: datos.cupon,
+    })
+
+    const descuento = promo.descuento
+    const costoEnvio = PreciosService.centavos(datos.costo_envio - promo.descuento_envio)
+    const total = PreciosService.centavos(subtotal - descuento + costoEnvio)
 
     const salidaInmediata = esMostrador && datos.tipo_entrega === 'inmediata'
 
@@ -163,9 +178,10 @@ export class PedidosService {
           tipo_entrega: datos.tipo_entrega,
           estado: 'pendiente',
           direccion_id: datos.direccion_id ?? null,
+          promocion_id: promo.promocion_id,
           subtotal,
           descuento,
-          costo_envio: datos.costo_envio,
+          costo_envio: costoEnvio,
           total,
           nota: datos.nota ?? null,
           idempotency_key: claveIdempotencia,
@@ -194,6 +210,12 @@ export class PedidosService {
         } else {
           await this.stock.reservar(tx, linea.variante_id, almacenId, linea.cantidad)
         }
+      }
+
+      // El uso del cupon se cuenta dentro de la misma transaccion: si el pedido
+      // se cae por falta de stock, el cupon no queda gastado.
+      if (promo.promocion_id !== null) {
+        await this.promociones.registrarUso(tx, promo.promocion_id)
       }
 
       await tx.pedido_historial.create({
@@ -506,6 +528,7 @@ export class PedidosService {
       creado_offline: p.creado_offline,
       creado_en: p.creado_en.toISOString(),
       items: p.pedido_detalle.map((d) => ({
+        id: d.id.toString(),
         variante_id: d.variante_id,
         sku: d.variante.sku,
         descripcion: d.descripcion,

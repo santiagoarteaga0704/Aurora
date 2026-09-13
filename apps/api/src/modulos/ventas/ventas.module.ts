@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { CatalogoModule } from '../catalogo/catalogo.module'
 import { InventarioModule } from '../inventario/inventario.module'
+import { CajaModule } from '../caja/caja.module'
+import { PromocionesModule } from '../promociones/promociones.module'
 import { CarritoController, PagosController, PedidosController } from './ventas.controller'
 import { CarritoService } from './carrito.service'
 import { PedidosService } from './pedidos.service'
@@ -14,7 +16,7 @@ import { PagosService } from './pagos.service'
  * puerta, para que el kardex quede completo).
  */
 @Module({
-  imports: [CatalogoModule, InventarioModule],
+  imports: [CatalogoModule, InventarioModule, CajaModule, PromocionesModule],
   controllers: [CarritoController, PedidosController, PagosController],
   providers: [CarritoService, PedidosService, PagosService],
   exports: [PedidosService],

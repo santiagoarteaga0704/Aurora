@@ -107,7 +107,7 @@ Verificación:
 
 ```bash
 curl http://localhost:8000/api/salud
-node scripts/probar-api.mjs          # 43 comprobaciones
+npm run pruebas                      # 368 comprobaciones
 ```
 
 El contrato REST queda documentado en <http://localhost:8000/api/docs>.

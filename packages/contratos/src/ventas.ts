@@ -118,6 +118,11 @@ export const crearPedidoSchema = z
     /** Solo en mostrador: a que cliente registrado se le atribuye la venta. */
     cliente_id: idSchema.optional(),
     costo_envio: z.coerce.number().nonnegative().max(9999).default(0),
+    /**
+     * Codigo de cupon. Es lo UNICO que el cliente puede decir sobre el
+     * descuento: el monto lo calcula el servidor.
+     */
+    cupon: z.string().trim().toUpperCase().max(30).optional(),
     nota: z.string().trim().max(255).optional(),
     /** Marca las ventas que se registraron sin conexion y se sincronizaron. */
     creado_offline: z.boolean().default(false),
@@ -154,6 +159,12 @@ export const consultaPedidosSchema = paginacionSchema.extend({
 export type DatosConsultaPedidos = z.infer<typeof consultaPedidosSchema>
 
 export interface LineaPedido {
+  /**
+   * Identificador de la linea. Lo necesita la devolucion: se devuelve "esta
+   * linea del pedido", no "esta variante", porque la misma variante puede
+   * aparecer en pedidos distintos con precios distintos.
+   */
+  id: string
   variante_id: number
   sku: string
   descripcion: string

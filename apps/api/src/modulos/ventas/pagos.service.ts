@@ -6,6 +6,7 @@ import { ExcepcionNegocio } from '../../nucleo/errores/excepcion-negocio'
 import { BitacoraService, type ContextoPeticion } from '../../nucleo/bitacora/bitacora.service'
 import { PermisosService } from '../../nucleo/autenticacion/permisos.service'
 import { PreciosService } from '../catalogo/precios.service'
+import { CajaService } from '../caja/caja.service'
 import { PedidosService } from './pedidos.service'
 import { aNumero } from '../../nucleo/util/decimal'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
@@ -31,6 +32,7 @@ export class PagosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pedidos: PedidosService,
+    private readonly caja: CajaService,
     private readonly permisos: PermisosService,
     private readonly bitacora: BitacoraService
   ) {}
@@ -136,6 +138,15 @@ export class PagosService {
       })
 
       if (seConfirmaSolo) {
+        await this.aCaja(tx, {
+          tipo: metodo.tipo,
+          canal: pedido.canal,
+          sucursalId: pedido.sucursal_id,
+          usuarioId: usuario.id,
+          monto: datos.monto,
+          numeroPedido: pedido.numero,
+          pagoId: pago.id,
+        })
         await this.actualizarEstadoDelPedido(tx, pedidoId, usuario.id)
       }
 
@@ -167,8 +178,9 @@ export class PagosService {
     const pago = await this.prisma.pago.findUnique({
       where: { id: pagoId },
       include: {
-        metodo_pago: { select: { nombre: true } },
-        pedido: { select: { id: true, numero: true, sucursal_id: true } },
+        // tipo y canal hacen falta para decidir si el cobro entra a la caja.
+        metodo_pago: { select: { nombre: true, tipo: true } },
+        pedido: { select: { id: true, numero: true, sucursal_id: true, canal: true } },
       },
     })
     if (!pago) throw ExcepcionNegocio.noEncontrado('Ese pago no existe')
@@ -193,6 +205,15 @@ export class PagosService {
       })
 
       if (datos.aprobado) {
+        await this.aCaja(tx, {
+          tipo: pago.metodo_pago.tipo,
+          canal: pago.pedido.canal,
+          sucursalId: pago.pedido.sucursal_id,
+          usuarioId: usuario.id,
+          monto: aNumero(pago.monto),
+          numeroPedido: pago.pedido.numero,
+          pagoId: pago.id,
+        })
         await this.actualizarEstadoDelPedido(tx, pago.pedido_id, usuario.id)
       }
     })
@@ -284,6 +305,38 @@ export class PagosService {
       creado_en: p.creado_en.toISOString(),
       confirmado_en: p.confirmado_en?.toISOString() ?? null,
     }
+  }
+
+  /**
+   * Un cobro en efectivo de mostrador entra a la caja abierta de quien lo
+   * cobro.
+   *
+   * Solo el efectivo: una tarjeta o una transferencia no ponen billetes en el
+   * cajon, asi que sumarlas al arqueo daria siempre un faltante. Si no hay caja
+   * abierta el pago vale igual y queda anotado en la bitacora: una venta no se
+   * puede caer porque alguien olvido abrir su turno.
+   */
+  private async aCaja(
+    tx: Parameters<PedidosService['marcarPagado']>[0],
+    d: {
+      tipo: string
+      canal: string
+      sucursalId: number
+      usuarioId: number
+      monto: number
+      numeroPedido: string
+      pagoId: bigint
+    }
+  ): Promise<void> {
+    if (d.tipo !== 'efectivo' || d.canal !== 'tienda') return
+
+    await this.caja.registrarCobro(tx, {
+      sucursalId: d.sucursalId,
+      usuarioId: d.usuarioId,
+      monto: d.monto,
+      concepto: `Cobro en efectivo del pedido ${d.numeroPedido}`,
+      pagoId: d.pagoId,
+    })
   }
 
   /**
