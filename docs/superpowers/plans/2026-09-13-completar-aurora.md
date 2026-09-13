@@ -108,16 +108,33 @@ que mostrar, y el modelo lo mejora. Es la misma decisión que se tomó en FORJA.
       de reportes. Registra `consulta_reporte.conversacion_id`.
 - [ ] **1.5** Controlador y módulo. Permiso: `ia.asistente` para el chat,
       `reporte.demanda` para pedir reportes.
-- [ ] **1.6** Pantalla de chat en operaciones, con **entrada por voz** usando
+- [x] **1.6** Pantalla de chat en operaciones, con **entrada por voz** usando
       `SpeechRecognition` del navegador (es lo que pide el enunciado: "por chat
       y voz"). Si el navegador no lo soporta, se oculta el micrófono.
-- [ ] **1.7** Suite `probar-asistente.mjs`: el intérprete acierta sin clave, el
+- [x] **1.7** Suite `probar-asistente.mjs`: el intérprete acierta sin clave, el
       resultado sale por el motor de reportes, el alcance por sucursal se
       respeta, y una pregunta con intención de inyección no produce SQL.
-- [ ] **1.8** Captura headless de la pantalla. Commit.
+- [x] **1.8** Captura headless de la pantalla. Commit.
 
 **Verificación:** `npm run pruebas` en verde. Preguntar "¿cuánto se vendió ayer?"
 sin clave de IA configurada tiene que devolver el reporte.
+
+---
+
+### Hallazgo durante la Tarea 1 — datos de demostracion planos
+
+`scripts/datos-demo.mjs` crea los pedidos por la API, asi que el servidor les
+pone la hora actual. Todas las ventas de ejemplo quedan en el mismo instante.
+
+Consecuencia: `ventas_por_rango` dibuja **una sola barra**, `ventas_por_hora`
+**una sola hora**, y "el mes pasado" sale vacio. Los reportes funcionan —las 460
+pruebas lo confirman— pero en la demostracion parecen rotos, que a efectos de la
+defensa es lo mismo.
+
+No se arregla desde la API: la fecha la pone el servidor y esta bien que asi
+sea. Hace falta un pase de SQL despues de sembrar que reparta los pedidos sobre
+las ultimas semanas. Se hace junto con el resto de los datos de demostracion,
+antes de las capturas del documento (Tarea 10).
 
 ---
 

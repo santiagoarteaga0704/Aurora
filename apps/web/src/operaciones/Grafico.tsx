@@ -17,10 +17,20 @@ interface Props {
   filas: Record<string, unknown>[]
 }
 
+// Columnas que identifican sin nombrar: un SKU es unico por definicion, asi
+// que siempre gana por variedad, y "encabeza VES-MIDI-01-01" no le dice nada a
+// nadie. Se las descarta como etiqueta salvo que no quede otra.
+const ES_CODIGO = /^(sku|codigo|numero|referencia)$|_(sku|codigo|id)$|^id$/i
+
 /**
  * Que columna va en cada eje.
  *
- * La etiqueta es simple: la primera que no sea numerica.
+ * La etiqueta es la columna no numerica con mas valores distintos, dejando de
+ * lado las que son codigos: es la que
+ * de verdad identifica cada fila. Tomar la primera a secas fallaba en el
+ * reporte de stock bajo, donde la primera es "sucursal" y sale la misma en las
+ * veinticinco filas: la leyenda quedaba con "Aurora Centro" repetido seis veces
+ * en lugar de decir de que prendas se esta hablando.
  *
  * El valor tiene truco. Un ranking de "productos mas vendidos" viene ordenado
  * por UNIDADES, pero la ultima columna numerica es el total en bolivianos; si el
@@ -32,7 +42,19 @@ interface Props {
  * -por ejemplo una serie por fecha- se usa la ultima, que suele ser el monto.
  */
 function ejes(columnas: ColumnaReporte[], filas: Record<string, unknown>[]) {
-  const etiqueta = columnas.find((c) => c.tipo !== 'numero') ?? columnas[0]
+  const distintos = (c: ColumnaReporte) => new Set(filas.map((f) => String(f[c.nombre]))).size
+
+  const noNumericas = columnas.filter((c) => c.tipo !== 'numero')
+  const nombrables = noNumericas.filter((c) => !ES_CODIGO.test(c.nombre))
+  const candidatas = nombrables.length > 0 ? nombrables : noNumericas
+
+  // Ante empate gana la primera, que es el orden en que el SQL las declaro.
+  const etiqueta =
+    candidatas.reduce<ColumnaReporte | null>(
+      (mejor, c) => (mejor === null || distintos(c) > distintos(mejor) ? c : mejor),
+      null
+    ) ?? columnas[0]
+
   const numericas = columnas.filter((c) => c.tipo === 'numero')
 
   const ordenadora =
@@ -56,6 +78,11 @@ const esColumnaDeDinero = (nombre: string) =>
 export function Grafico({ visual: visualPedida, columnas, filas }: Props) {
   let visual = visualPedida
   if (filas.length === 0 || columnas.length === 0) return null
+
+  // La plantilla que pide 'tabla' esta diciendo que sus filas no se resumen en
+  // un dibujo. Antes caia en el `return` de la torta que cierra esta funcion y
+  // se le dibujaba una igual.
+  if (visual === 'tabla') return null
 
   const { etiqueta, valor } = ejes(columnas, filas)
   if (!valor || !etiqueta) return null
@@ -158,7 +185,7 @@ export function Grafico({ visual: visualPedida, columnas, filas }: Props) {
     )
   }
 
-  // torta
+  // torta — es lo unico que queda por dibujar.
   const total = datos.reduce((s, d) => s + d.valor, 0)
   const radio = 60
   const circunferencia = 2 * Math.PI * radio

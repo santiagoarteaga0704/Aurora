@@ -21,6 +21,7 @@ import { PedidosOperaciones } from './operaciones/PedidosOperaciones'
 import { Caja } from './operaciones/Caja'
 import { CatalogoOperaciones } from './operaciones/CatalogoOperaciones'
 import { Reportes } from './operaciones/Reportes'
+import { Asistente } from './operaciones/Asistente'
 
 /** Exige sesion; opcionalmente, que sea del personal. */
 function Protegida({ children, personal = false }: { children: ReactNode; personal?: boolean }) {
@@ -98,6 +99,7 @@ export function App() {
         <Route path="caja" element={<Caja />} />
         <Route path="catalogo" element={<CatalogoOperaciones />} />
         <Route path="reportes" element={<Reportes />} />
+        <Route path="asistente" element={<Asistente />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
