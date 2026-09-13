@@ -22,6 +22,7 @@ import { PromocionesModule } from './modulos/promociones/promociones.module'
 import { PosventaModule } from './modulos/posventa/posventa.module'
 import { AdministracionModule } from './modulos/administracion/administracion.module'
 import { ClientesModule } from './modulos/clientes/clientes.module'
+import { ReportesModule } from './modulos/reportes/reportes.module'
 
 /**
  * Raiz de la API.
@@ -33,7 +34,7 @@ import { ClientesModule } from './modulos/clientes/clientes.module'
  *   3. Permisos           - necesita la sesion ya resuelta, asi que va despues.
  *
  * Los modulos de negocio se van sumando a `imports` a medida que se implementan:
- *   probador, ia, reportes y sync.
+ *   probador, ia y sync.
  */
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ClientesModule } from './modulos/clientes/clientes.module'
     PosventaModule,
     AdministracionModule,
     ClientesModule,
+    ReportesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

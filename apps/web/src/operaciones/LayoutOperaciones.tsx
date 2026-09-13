@@ -26,6 +26,7 @@ export function LayoutOperaciones() {
     { a: '/op/inventario', texto: 'Inventario', permiso: PERMISOS.INVENTARIO_VER },
     { a: '/op/caja', texto: 'Caja', permiso: PERMISOS.CAJA_OPERAR },
     { a: '/op/catalogo', texto: 'Catalogo', permiso: PERMISOS.PRODUCTO_VER },
+    { a: '/op/reportes', texto: 'Reportes', permiso: PERMISOS.REPORTE_VER },
   ].filter((s) => puede(s.permiso))
 
   return (

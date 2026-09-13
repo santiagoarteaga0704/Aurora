@@ -999,3 +999,345 @@
     grid-area: precio;
   }
 }
+
+/* === Reportes =============================================================
+   Lista de plantillas a la izquierda, parametros y resultado a la derecha. El
+   formulario se arma solo con lo que declara cada plantilla.
+   ========================================================================= */
+
+.reportes {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--e5);
+  align-items: start;
+  min-height: 0;
+}
+
+.reportes__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  position: sticky;
+  top: var(--e4);
+}
+
+.reporte-ficha {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--e3);
+  background: var(--noche-panel);
+  border-radius: var(--radio);
+  border-left: 2px solid transparent;
+  text-align: left;
+  transition: var(--transicion);
+}
+
+.reporte-ficha:hover:not(:disabled) {
+  background: var(--noche-alto);
+}
+
+.reporte-ficha--activa {
+  background: var(--noche-alto);
+  border-left-color: var(--laton);
+}
+
+.reporte-ficha--bloqueada {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reporte-ficha__nombre {
+  font-size: 0.9rem;
+  color: var(--noche-texto);
+}
+
+.reporte-ficha__nota {
+  font-size: 0.74rem;
+  color: var(--noche-suave);
+  line-height: 1.35;
+}
+
+.reportes__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e5);
+  min-width: 0;
+}
+
+.reportes__parametros {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  padding: var(--e5);
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.reportes__titulo {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  color: var(--noche-texto);
+}
+
+.reportes__descripcion {
+  font-size: 0.88rem;
+  color: var(--noche-suave);
+  max-width: 70ch;
+}
+
+.rangos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+.rangos__boton {
+  padding: 0.3rem 0.7rem;
+  background: var(--noche-alto);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--noche-suave);
+  transition: var(--transicion);
+}
+
+.rangos__boton:hover {
+  border-color: var(--laton);
+  color: var(--laton);
+}
+
+.reportes__campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--e3);
+}
+
+.reportes__campos .campo__etiqueta {
+  text-transform: uppercase;
+}
+
+.reportes__acciones {
+  display: flex;
+  gap: var(--e3);
+}
+
+.reportes__resultado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  min-width: 0;
+}
+
+.reportes__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e3);
+  flex-wrap: wrap;
+}
+
+/* === Graficos ============================================================= */
+
+.grafico {
+  padding: var(--e5);
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.grafico__nota {
+  margin-top: var(--e3);
+  font-size: 0.76rem;
+  color: var(--noche-suave);
+}
+
+/* --- Tarjeta --- */
+
+.grafico--tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  align-items: flex-start;
+}
+
+.grafico__tarjeta-cifra {
+  font-size: 2.6rem;
+  letter-spacing: -0.03em;
+  color: var(--laton);
+}
+
+/* --- Barras --- */
+
+.grafico--barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.barra {
+  display: grid;
+  grid-template-columns: minmax(90px, 190px) 1fr minmax(80px, auto);
+  gap: var(--e3);
+  align-items: center;
+}
+
+.barra__etiqueta {
+  font-size: 0.82rem;
+  color: var(--noche-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra__pista {
+  height: 16px;
+  background: var(--noche-alto);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+@keyframes crecer-barra {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.barra__relleno {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--vino-claro), var(--laton));
+  transform-origin: left;
+  animation: crecer-barra 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.barra__valor {
+  font-size: 0.85rem;
+  text-align: right;
+  color: var(--noche-texto);
+}
+
+/* --- Lineas --- */
+
+.grafico--lineas svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.linea__area {
+  fill: rgba(168, 132, 60, 0.13);
+}
+
+@keyframes trazar {
+  from {
+    stroke-dashoffset: 2200;
+  }
+}
+
+.linea__trazo {
+  fill: none;
+  stroke: var(--laton);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 2200;
+  animation: trazar 1100ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.linea__punto {
+  fill: var(--noche-panel);
+  stroke: var(--laton);
+  stroke-width: 2;
+}
+
+.grafico__pie-eje {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--e2);
+  font-family: var(--cifra);
+  font-size: 0.72rem;
+  color: var(--noche-suave);
+}
+
+/* --- Torta --- */
+
+.grafico--torta {
+  display: flex;
+  align-items: center;
+  gap: var(--e6);
+  flex-wrap: wrap;
+}
+
+.grafico--torta svg {
+  width: 170px;
+  height: 170px;
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.torta__sector {
+  fill: none;
+  stroke-width: 28;
+}
+
+.torta__sector--0 { stroke: #6e1a2b; }
+.torta__sector--1 { stroke: #a8843c; }
+.torta__sector--2 { stroke: #46654e; }
+.torta__sector--3 { stroke: #8e2437; }
+.torta__sector--4 { stroke: #c98a1f; }
+.torta__sector--5 { stroke: #5c6b7d; }
+
+.torta__leyenda {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  min-width: 220px;
+  flex: 1;
+}
+
+.torta__leyenda li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  gap: var(--e3);
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.torta__muestra {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.torta__muestra--0 { background: #6e1a2b; }
+.torta__muestra--1 { background: #a8843c; }
+.torta__muestra--2 { background: #46654e; }
+.torta__muestra--3 { background: #8e2437; }
+.torta__muestra--4 { background: #c98a1f; }
+.torta__muestra--5 { background: #5c6b7d; }
+
+.torta__nombre {
+  color: var(--noche-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .reportes {
+    grid-template-columns: 1fr;
+  }
+  .reportes__lista {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--e2);
+  }
+  .reporte-ficha {
+    min-width: 200px;
+  }
+}

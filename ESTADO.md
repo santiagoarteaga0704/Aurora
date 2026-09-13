@@ -15,10 +15,11 @@ qué sigue.
 | Migración de stack | ✅ completa y verificada |
 | Modelo de datos | ✅ 54 tablas + 2 vistas en PostgreSQL 16 |
 | Backend (núcleo) | ✅ Prisma, JWT, RBAC, bitácora, validación, límite de tasa |
-| Backend (módulos) | ✅ **11 de 11** — 91 endpoints |
-| Pruebas de la API | ✅ 374 comprobaciones en verde |
+| Backend (módulos) | ✅ **12 de 12** — 96 endpoints |
+| Pruebas de la API | ✅ 423 comprobaciones en verde |
 | PWA web | ✅ tienda y punto de venta, **funcionando sin conexión** |
 | App React Native | ⬜ sin empezar |
+| Reportes | ✅ motor de plantillas, 8 reportes, gráficos y CSV |
 | Probador RA e IA | ⬜ sin empezar |
 | Documento PUDS | 🟡 2 de 8 capítulos |
 | Diagramas UML | 🟡 3 de ~12 |
@@ -73,7 +74,7 @@ Las 8 plantillas de reporte se reescribieron a mano
 > **Ojo con el documento:** los capítulos escritos dicen "46 tablas". Son **54**.
 > Hay que corregirlo antes de la tabla de volumen del capítulo 4.
 
-### Módulos (91 endpoints)
+### Módulos (96 endpoints)
 
 | Módulo | Endpoints | Qué resuelve |
 |---|---|---|
@@ -87,6 +88,7 @@ Las 8 plantillas de reporte se reescribieron a mano
 | `promociones` | 5 | Campañas, promociones y cupones |
 | `administracion` | 9 | Personal, roles, permisos, mayoristas |
 | `clientes` | 4 | Direcciones de entrega |
+| `reportes` | 5 | Motor de plantillas, historial y exportación a CSV |
 | `salud` | 1 | Estado del servicio, lo consulta el PWA para saber si está en línea |
 
 Contrato REST autodocumentado en `/api/docs`.
@@ -116,7 +118,7 @@ Contrato REST autodocumentado en `/api/docs`.
 
 ### Pruebas
 
-`npm run pruebas` → **374 comprobaciones, 374 en verde**, desde una base recién
+`npm run pruebas` → **423 comprobaciones, 423 en verde**, desde una base recién
 cargada.
 
 | Suite | Comprobaciones |
@@ -128,6 +130,7 @@ cargada.
 | Compras y caja | 51 |
 | Administración, roles y permisos | 40 |
 | Promociones, devoluciones y envíos | 63 |
+| Reportes | 49 |
 
 Las pruebas encontraron tres defectos reales que ya están corregidos:
 
@@ -197,7 +200,7 @@ npm run build
 
 npm run api                     # API en el 8000
 npm run web                     # PWA en el 5180
-npm run pruebas                 # 374 comprobaciones
+npm run pruebas                 # 423 comprobaciones
 ```
 
 Para probar el modo sin conexión: entrar al punto de venta con la API arriba
@@ -223,7 +226,7 @@ Para probar el modo sin conexión: entrar al punto de venta con la API arriba
 
 | Días | Trabajo |
 |---|---|
-| 14–16 sep | Probador virtual, realidad aumentada, asistente de IA y reportes por chat y voz |
+| 14–16 sep | Probador virtual, realidad aumentada y asistente de IA (los reportes por chat y voz se montan sobre el motor ya hecho) |
 | 17–19 sep | React Native y APK con EAS |
 | 20–21 sep | Despliegue en Azure |
 | 22–23 sep | Capítulos 2, 4, 5 y 6, bibliografía, anexos y regenerar el entregable |
@@ -245,7 +248,7 @@ soporta enteras; les falta la interfaz.
 | Cap. 3 Análisis | Paquetes, diagramas de comunicación por ciclo, análisis de clases |
 | Cap. 4 Diseño | Despliegue, capas, clases, mapeo entidad-tabla, **tabla de volumen de las 54 tablas**, script, diagrama relacional |
 | Cap. 5 Implementación | **Reescribir con el stack nuevo**, más el enlace del repositorio y del APK |
-| Cap. 6 Pruebas | Formalizar las 374 comprobaciones ya automatizadas |
+| Cap. 6 Pruebas | Formalizar las 423 comprobaciones ya automatizadas |
 | Bibliografía y Anexos | Referencias y código fuente |
 
 Los diagramas de despliegue y de capas hay que rehacerlos: apuntaban a PHP en
@@ -265,9 +268,7 @@ Hostinger.
    registro de Santiago, y los nombres y registros de los demás integrantes.
    Están en blanco en `docs/documento/00-portada.html`.
 
-4. **Repositorio remoto.** Hay git local con seis commits. Falta crear el
-   remoto y subirlo; el capítulo 5 exige el enlace y el despliegue continuo lo
-   necesita.
+4. ~~**Repositorio remoto.**~~ Resuelto: https://github.com/santiagoarteaga0704/Aurora
 
 5. **Clave de IA.** `ANTHROPIC_API_KEY` en `apps/api/.env` está vacía. Decidir
    entre esa y Azure OpenAI, que encaja mejor con el resto del despliegue.

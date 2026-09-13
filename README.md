@@ -111,7 +111,7 @@ Verificación:
 
 ```bash
 curl http://localhost:8000/api/salud
-npm run pruebas                      # 374 comprobaciones
+npm run pruebas                      # 423 comprobaciones
 ```
 
 El contrato REST queda documentado en <http://localhost:8000/api/docs>.
@@ -129,7 +129,11 @@ después del primer ingreso.
 | `npm run web` | Levanta el PWA en el 5180 |
 | `npm run db:demo` | Carga 14 productos, stock, promociones y personal |
 | `npm run build` | Compila el contrato y la API |
-| `npm run pruebas` | Las siete suites de prueba de la API |
+| `npm run pruebas` | Las ocho suites de prueba de la API |
+
+## Repositorio
+
+https://github.com/santiagoarteaga0704/Aurora
 
 ## Estado
 

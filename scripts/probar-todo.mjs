@@ -18,6 +18,7 @@ import { probarVentas } from './probar-ventas.mjs'
 import { probarComprasYCaja } from './probar-compras-caja.mjs'
 import { probarAdministracion } from './probar-administracion.mjs'
 import { probarPosventa } from './probar-posventa.mjs'
+import { probarReportes } from './probar-reportes.mjs'
 
 const suites = [
   ['Autenticacion', probarAuth],
@@ -27,6 +28,7 @@ const suites = [
   ['Compras y caja', probarComprasYCaja],
   ['Administracion, roles y permisos', probarAdministracion],
   ['Promociones, devoluciones y envios', probarPosventa],
+  ['Reportes', probarReportes],
 ]
 
 async function principal() {
