@@ -13,6 +13,8 @@ import { RespuestaInterceptor } from './nucleo/respuesta/respuesta.interceptor'
 
 import { AuthModule } from './modulos/auth/auth.module'
 import { SaludModule } from './modulos/salud/salud.module'
+import { CatalogoModule } from './modulos/catalogo/catalogo.module'
+import { InventarioModule } from './modulos/inventario/inventario.module'
 
 /**
  * Raiz de la API.
@@ -24,8 +26,8 @@ import { SaludModule } from './modulos/salud/salud.module'
  *   3. Permisos           - necesita la sesion ya resuelta, asi que va despues.
  *
  * Los modulos de negocio se van sumando a `imports` a medida que se implementan:
- *   catalogo, inventario, compras, ventas, pagos, caja, envios, devoluciones,
- *   promociones, probador, ia, reportes y sync.
+ *   compras, ventas, pagos, caja, envios, devoluciones, promociones,
+ *   probador, ia, reportes y sync.
  */
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { SaludModule } from './modulos/salud/salud.module'
 
     SaludModule,
     AuthModule,
+    CatalogoModule,
+    InventarioModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

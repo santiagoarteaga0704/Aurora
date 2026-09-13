@@ -11,5 +11,8 @@
  * compilar.
  */
 export * from './respuesta'
+export * from './comun'
 export * from './permisos'
 export * from './auth'
+export * from './catalogo'
+export * from './inventario'

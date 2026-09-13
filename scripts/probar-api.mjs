@@ -14,46 +14,10 @@
  * que esa configuracion esta puesta.
  */
 
-const BASE = process.argv[2] ?? 'http://localhost:8000'
+import { pathToFileURL } from 'node:url'
+import { ADMIN, BASE, pedir, resumen, sufijo as nuevoSufijo, verificar } from './ayuda-pruebas.mjs'
 
-let pasaron = 0
-let fallaron = 0
-const fallos = []
-
-function verificar(nombre, condicion, detalle = '') {
-  if (condicion) {
-    pasaron++
-    console.log(`  OK    ${nombre}`)
-  } else {
-    fallaron++
-    fallos.push(nombre)
-    console.log(`  FALLA ${nombre}${detalle ? ` -> ${detalle}` : ''}`)
-  }
-}
-
-async function pedir(metodo, ruta, { cuerpo, token, ip, dispositivo } = {}) {
-  const cabeceras = { 'Content-Type': 'application/json' }
-  if (token) cabeceras.Authorization = `Bearer ${token}`
-  if (ip) cabeceras['X-Forwarded-For'] = ip
-  if (dispositivo) cabeceras['X-Dispositivo'] = dispositivo
-
-  const res = await fetch(`${BASE}${ruta}`, {
-    method: metodo,
-    headers: cabeceras,
-    body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
-  })
-
-  let json = null
-  try {
-    json = await res.json()
-  } catch {
-    /* respuestas sin cuerpo, como el 204 */
-  }
-  return { estado: res.status, json }
-}
-
-const ADMIN = { email: 'admin@aurora.bo', password: 'Aurora2026!' }
-const sufijo = Math.random().toString(36).slice(2, 8)
+const sufijo = nuevoSufijo()
 
 // ---------------------------------------------------------------------------
 
@@ -350,7 +314,7 @@ async function limiteDeTasa() {
 
 // ---------------------------------------------------------------------------
 
-async function principal() {
+export async function probarAuth() {
   console.log(`Probando ${BASE}`)
 
   await salud()
@@ -361,16 +325,13 @@ async function principal() {
   await cambioPassword(cliente)
   await bloqueoPorIntentos()
   await limiteDeTasa()
-
-  console.log(`\n${'-'.repeat(60)}`)
-  console.log(`${pasaron} pasaron, ${fallaron} fallaron`)
-  if (fallaron > 0) {
-    console.log(`\nFallaron:\n  - ${fallos.join('\n  - ')}`)
-    process.exit(1)
-  }
 }
 
-principal().catch((e) => {
-  console.error('\nLa prueba se corto:', e.message)
-  process.exit(1)
-})
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  probarAuth()
+    .then(() => process.exit(resumen()))
+    .catch((e) => {
+      console.error('\nLa prueba se corto:', e.message)
+      process.exit(1)
+    })
+}

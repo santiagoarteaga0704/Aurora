@@ -1,0 +1,41 @@
+/**
+ * Corre todas las suites de prueba contra una API levantada y da un solo
+ * resultado.
+ *
+ *   npm run pruebas
+ *   AURORA_API=https://aurora-api.azurewebsites.net node scripts/probar-todo.mjs
+ *
+ * Conviene correrlo sobre una base recien cargada (`npm run db:cargar` y
+ * reiniciar la API): las suites crean sus propios datos con un sufijo aleatorio,
+ * asi que no chocan entre corridas, pero la base va acumulando productos de
+ * prueba.
+ */
+import { BASE, resumen } from './ayuda-pruebas.mjs'
+import { probarAuth } from './probar-api.mjs'
+import { probarCatalogo } from './probar-catalogo.mjs'
+import { probarInventario } from './probar-inventario.mjs'
+
+const suites = [
+  ['Autenticacion', probarAuth],
+  ['Catalogo', probarCatalogo],
+  ['Inventario y transferencias', probarInventario],
+]
+
+async function principal() {
+  console.log(`Probando ${BASE}\n`)
+
+  for (const [nombre, suite] of suites) {
+    console.log(`${'='.repeat(60)}`)
+    console.log(`  ${nombre}`)
+    console.log(`${'='.repeat(60)}`)
+    await suite()
+    console.log('')
+  }
+
+  process.exit(resumen())
+}
+
+principal().catch((e) => {
+  console.error('\nLas pruebas se cortaron:', e.message)
+  process.exit(1)
+})

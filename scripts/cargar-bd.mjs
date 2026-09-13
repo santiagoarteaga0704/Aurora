@@ -14,9 +14,10 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 
 const ESQUEMA = 'database/schema.postgres.sql'
+const CORRELATIVOS = 'database/correlativos.sql'
 const SEMILLA = 'database/seed.postgres.sql'
 
-for (const archivo of [ESQUEMA, SEMILLA]) {
+for (const archivo of [ESQUEMA, CORRELATIVOS, SEMILLA]) {
   if (!existsSync(archivo)) {
     console.error(`Falta ${archivo}. Generarlo con: npm run db:generar`)
     process.exit(1)
@@ -50,6 +51,7 @@ function ejecutar(sql, titulo) {
 
 ejecutar('DROP SCHEMA public CASCADE; CREATE SCHEMA public;', 'Vaciando el esquema')
 ejecutar(readFileSync(ESQUEMA, 'utf8'), 'Creando 54 tablas, 39 enums y 2 vistas')
+ejecutar(readFileSync(CORRELATIVOS, 'utf8'), 'Creando secuencias de correlativos')
 ejecutar(readFileSync(SEMILLA, 'utf8'), 'Sembrando catalogos maestros')
 
 const recuento = ejecutar(
