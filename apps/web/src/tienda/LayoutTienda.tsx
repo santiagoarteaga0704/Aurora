@@ -118,6 +118,7 @@ export function LayoutTienda() {
               <p className="rotulo">Tienda</p>
               <Link to="/catalogo">Catalogo completo</Link>
               <Link to="/mis-pedidos">Mis pedidos</Link>
+              <Link to="/mis-medidas">Mis medidas</Link>
             </div>
             <div>
               <p className="rotulo">Personal</p>

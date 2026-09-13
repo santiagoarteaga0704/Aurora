@@ -17,6 +17,7 @@ import { StockService, type Tx } from '../inventario/stock.service'
 import { PromocionesService } from '../promociones/promociones.service'
 import { CarritoService } from './carrito.service'
 import { aNumero } from '../../nucleo/util/decimal'
+import { PruebasService } from '../probador/pruebas.service'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
 
 @Injectable()
@@ -28,6 +29,7 @@ export class PedidosService {
     private readonly carrito: CarritoService,
     private readonly promociones: PromocionesService,
     private readonly permisos: PermisosService,
+    private readonly pruebas: PruebasService,
     private readonly bitacora: BitacoraService
   ) {}
 
@@ -231,6 +233,18 @@ export class PedidosService {
     })
 
     if (carritoId !== null) await this.carrito.vaciarPorId(carritoId)
+
+    // Las prendas que se probo y termino comprando. Va fuera de la transaccion
+    // y con el error tragado a proposito: es una estadistica, y perder una
+    // estadistica no puede costar una venta que ya esta cobrada y con el stock
+    // movido.
+    await this.pruebas
+      .marcarConversion(
+        clienteId,
+        sessionCarrito,
+        lineas.map((l) => l.variante_id)
+      )
+      .catch(() => 0)
 
     await this.bitacora.registrar(ctx, {
       accion: 'crear',

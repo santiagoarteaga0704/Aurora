@@ -11,6 +11,7 @@ import { Carrito } from './tienda/Carrito'
 import { Checkout } from './tienda/Checkout'
 import { DetallePedido } from './tienda/DetallePedido'
 import { MisPedidos } from './tienda/MisPedidos'
+import { MisMedidas } from './tienda/MisMedidas'
 import { Entrar } from './tienda/Entrar'
 
 import { LayoutOperaciones } from './operaciones/LayoutOperaciones'
@@ -64,6 +65,14 @@ export function App() {
           element={
             <Protegida>
               <Checkout />
+            </Protegida>
+          }
+        />
+        <Route
+          path="mis-medidas"
+          element={
+            <Protegida>
+              <MisMedidas />
             </Protegida>
           }
         />

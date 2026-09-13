@@ -24,6 +24,7 @@ import { AdministracionModule } from './modulos/administracion/administracion.mo
 import { ClientesModule } from './modulos/clientes/clientes.module'
 import { ReportesModule } from './modulos/reportes/reportes.module'
 import { AsistenteModule } from './modulos/asistente/asistente.module'
+import { ProbadorModule } from './modulos/probador/probador.module'
 
 /**
  * Raiz de la API.
@@ -61,6 +62,7 @@ import { AsistenteModule } from './modulos/asistente/asistente.module'
     ClientesModule,
     ReportesModule,
     AsistenteModule,
+    ProbadorModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

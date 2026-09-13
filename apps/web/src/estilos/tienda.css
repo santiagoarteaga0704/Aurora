@@ -1676,3 +1676,205 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* === Probador virtual =====================================================
+   Mis medidas: el formulario a la izquierda y la silueta al lado, porque el
+   dibujo es la comprobacion de que el numero que se acaba de escribir es el
+   correcto, y para eso tiene que verse mientras se escribe.
+   ========================================================================= */
+
+.medidas__cabecera {
+  margin-bottom: var(--e6);
+}
+
+.medidas__bajada {
+  color: var(--tinta-suave);
+  max-width: 54ch;
+  margin-top: var(--e2);
+}
+
+.medidas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: var(--e7);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .medidas {
+    /* La silueta primero en el celular: es lo que da sentido al formulario. */
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+
+  .medidas__avatar {
+    order: -1;
+  }
+}
+
+.medidas__formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--e4);
+  align-items: start;
+}
+
+.medidas__formulario > .boton,
+.medidas__formulario > .aviso {
+  grid-column: 1 / -1;
+}
+
+.medidas__unidad {
+  margin-left: var(--e1);
+  color: var(--tinta-suave);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.medidas__opcional {
+  margin-left: var(--e2);
+  font-size: 0.68rem;
+  color: var(--laton);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.medidas__avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e5);
+  background: var(--papel-hondo);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio-suave);
+}
+
+.medidas__tipo {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  color: var(--vino);
+}
+
+.medidas__estimado,
+.medidas__sin-avatar {
+  font-size: 0.82rem;
+  color: var(--tinta-suave);
+  text-align: center;
+  max-width: 30ch;
+}
+
+/* --- Silueta --- */
+
+.silueta {
+  /* El lienzo es 44 x 100: la relacion de un cuerpo, no un cuadrado. */
+  height: 280px;
+  aspect-ratio: 44 / 100;
+}
+
+.silueta__figura {
+  fill: var(--vino-tenue);
+  stroke: var(--vino);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+  transition: d 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.silueta__medida {
+  stroke: var(--laton);
+  stroke-width: 0.5;
+  stroke-dasharray: 1.5 1.5;
+}
+
+/* --- Talla recomendada en la ficha --- */
+
+.ficha__paso-acciones {
+  display: flex;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+
+.ficha__guia-enlace--destacado {
+  color: var(--laton);
+  font-weight: 600;
+}
+
+.ficha__guia-enlace--destacado:disabled {
+  opacity: 0.5;
+  text-decoration: none;
+}
+
+@keyframes aparecer-talla {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.mi-talla {
+  margin-top: var(--e4);
+  padding: var(--e4);
+  background: var(--laton-tenue);
+  border-left: 2px solid var(--laton);
+  border-radius: 0 var(--radio-suave) var(--radio-suave) 0;
+  animation: aparecer-talla 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mi-talla--falta {
+  background: var(--papel-hondo);
+  border-left-color: var(--tinta-suave);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--e3);
+}
+
+.mi-talla__titulo {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  color: var(--tinta);
+}
+
+.mi-talla__titulo strong {
+  color: var(--vino);
+}
+
+.mi-talla__ajuste {
+  margin-left: var(--e2);
+  padding: 0.15rem 0.5rem;
+  background: var(--papel);
+  border: 1px solid var(--papel-borde);
+  border-radius: 99px;
+  font-family: var(--texto);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tinta-media);
+  vertical-align: middle;
+}
+
+.mi-talla__motivo {
+  margin-top: var(--e2);
+  font-size: 0.88rem;
+  color: var(--tinta-media);
+  line-height: 1.5;
+}
+
+.mi-talla__sin-stock {
+  margin-top: var(--e2);
+  font-size: 0.88rem;
+  color: var(--alerta);
+}
+
+.mi-talla__confianza {
+  margin-top: var(--e3);
+  font-family: var(--cifra);
+  font-size: 0.74rem;
+  color: var(--tinta-suave);
+}
+
+.mi-talla__confianza a {
+  color: var(--vino);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import type { ProductoFicha, VarianteResumen } from '@aurora/contratos'
+import type { ProductoFicha, RespuestaRecomendacion, VarianteResumen } from '@aurora/contratos'
+import { esRecomendacion } from '@aurora/contratos'
 import { api } from '../api/cliente'
+import { useSesion } from '../sesion/SesionContexto'
 import { useCarrito } from './CarritoContexto'
 import { Cargando, ErrorCarga } from '../componentes/Estados'
 import { bs, clases, numero } from '../util/formato'
@@ -29,6 +31,7 @@ interface FilaGuia {
 export function Producto() {
   const { slug = '' } = useParams()
   const { agregar } = useCarrito()
+  const { perfil, esPersonal } = useSesion()
 
   const [ficha, setFicha] = useState<ProductoFicha | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +41,9 @@ export function Producto() {
   const [guiaAbierta, setGuiaAbierta] = useState(false)
   const [agregando, setAgregando] = useState(false)
   const [agregado, setAgregado] = useState(false)
+  const [categoriaId, setCategoriaId] = useState<number | null>(null)
+  const [talla, setTalla] = useState<RespuestaRecomendacion | null>(null)
+  const [buscandoTalla, setBuscandoTalla] = useState(false)
 
   const cargar = useCallback(async () => {
     setError(null)
@@ -80,27 +86,95 @@ export function Producto() {
     setAgregado(false)
   }, [colorElegido])
 
+  /**
+   * El id de la categoria, que la ficha no trae.
+   *
+   * Lo necesitan las dos cosas que dependen de la categoria —la guia de tallas y
+   * la recomendacion—, asi que se resuelve una vez y se guarda, en vez de pedir
+   * el listado entero de categorias cada vez que alguien abre la guia.
+   */
+  const resolverCategoria = useCallback(async (): Promise<number | null> => {
+    if (categoriaId !== null) return categoriaId
+    if (!ficha) return null
+
+    try {
+      const categorias = await api.obtener<
+        { id: number; nombre: string; hijas?: { id: number; nombre: string }[] }[]
+      >('/api/catalogo/categorias')
+      const plano = categorias.flatMap((c) => [c, ...(c.hijas ?? [])])
+      const encontrada = plano.find((c) => c.nombre === ficha.categoria)
+      if (!encontrada) return null
+      setCategoriaId(encontrada.id)
+      return encontrada.id
+    } catch {
+      return null
+    }
+  }, [categoriaId, ficha])
+
   const verGuia = async () => {
     setGuiaAbierta((v) => !v)
     if (guia === null && ficha) {
-      try {
-        // La guia cuelga de la categoria; el id no viene en la ficha, asi que se
-        // resuelve por el slug de la categoria via el listado de categorias.
-        const categorias = await api.obtener<{ id: number; nombre: string; hijas?: { id: number; nombre: string }[] }[]>(
-          '/api/catalogo/categorias'
-        )
-        const plano = categorias.flatMap((c) => [c, ...(c.hijas ?? [])])
-        const encontrada = plano.find((c) => c.nombre === ficha.categoria)
-        if (encontrada) {
-          setGuia(await api.obtener<FilaGuia[]>(`/api/catalogo/guia-tallas/${encontrada.id}`))
-        } else {
-          setGuia([])
-        }
-      } catch {
+      const id = await resolverCategoria()
+      if (id === null) {
         setGuia([])
+        return
       }
+      setGuia(await api.obtener<FilaGuia[]>(`/api/catalogo/guia-tallas/${id}`).catch(() => []))
     }
   }
+
+  /**
+   * Que talla le corresponde a quien esta mirando.
+   *
+   * Se pide junto con el producto para que la respuesta diga tambien si esa
+   * talla esta disponible aca: recomendar una M que no hay manda a la clienta a
+   * buscar algo que no va a encontrar.
+   */
+  const verMiTalla = useCallback(async () => {
+    if (!ficha) return
+    setBuscandoTalla(true)
+    try {
+      const id = await resolverCategoria()
+      if (id === null) {
+        setTalla({ talla_id: null, falta: 'guia', motivo: 'Esta categoria no tiene guia de tallas' })
+        return
+      }
+      setTalla(
+        await api.obtener<RespuestaRecomendacion>(
+          `/api/probador/mi-talla/${id}?producto_id=${ficha.id}`
+        )
+      )
+    } catch (e) {
+      setTalla({ talla_id: null, falta: 'medidas', motivo: (e as Error).message })
+    } finally {
+      setBuscandoTalla(false)
+    }
+  }, [ficha, resolverCategoria])
+
+  /**
+   * Con la sesion iniciada, la talla se busca sola.
+   *
+   * Hacerla depender de un boton era pedirle un clic a la persona a la que el
+   * probador esta pensado para ayudar: si ya tenemos sus medidas, no hay nada
+   * que preguntarle. El boton queda para quien entra sin sesion, que es a quien
+   * si hay algo que pedirle.
+   */
+  useEffect(() => {
+    if (ficha && perfil && !esPersonal) void verMiTalla()
+  }, [ficha, perfil, esPersonal, verMiTalla])
+
+  /**
+   * Al recibir la talla, se selecciona sola si esta disponible.
+   *
+   * Es el punto del probador: que la clienta no tenga que traducir "sos M" a
+   * buscar el boton M entre seis. Si no hay stock no se toca nada, para que el
+   * aviso de que no hay quede a la vista.
+   */
+  useEffect(() => {
+    if (talla && esRecomendacion(talla) && talla.hay_stock && talla.variante_id !== null) {
+      setVarianteElegida(talla.variante_id)
+    }
+  }, [talla])
 
   if (error) return <div className="contenedor seccion"><ErrorCarga mensaje={error} reintentar={() => void cargar()} /></div>
   if (!ficha) return <div className="contenedor seccion"><Cargando texto="Cargando la prenda" /></div>
@@ -160,9 +234,23 @@ export function Producto() {
             <div className="ficha__paso">
               <div className="ficha__paso-cabecera">
                 <p className="rotulo">Talla</p>
-                <button type="button" className="ficha__guia-enlace" onClick={() => void verGuia()}>
-                  {guiaAbierta ? 'Ocultar guia' : 'Guia de tallas'}
-                </button>
+                <div className="ficha__paso-acciones">
+                  {/* El personal de tienda no tiene medidas cargadas: ofrecerle
+                      el probador seria prometerle algo que le responde 403. */}
+                  {!esPersonal && talla === null && (
+                    <button
+                      type="button"
+                      className="ficha__guia-enlace ficha__guia-enlace--destacado"
+                      onClick={() => void verMiTalla()}
+                      disabled={buscandoTalla}
+                    >
+                      {buscandoTalla ? 'Calculando' : '¿Cuál es mi talla?'}
+                    </button>
+                  )}
+                  <button type="button" className="ficha__guia-enlace" onClick={() => void verGuia()}>
+                    {guiaAbierta ? 'Ocultar guia' : 'Guia de tallas'}
+                  </button>
+                </div>
               </div>
 
               <div className="ficha__tallas">
@@ -189,6 +277,53 @@ export function Producto() {
                   )
                 })}
               </div>
+
+              {talla !== null &&
+                (esRecomendacion(talla) ? (
+                  <div className="mi-talla">
+                    <p className="mi-talla__titulo">
+                      Tu talla es <strong>{talla.talla}</strong>
+                      <span className="mi-talla__ajuste">{talla.ajuste}</span>
+                    </p>
+                    <p className="mi-talla__motivo">{talla.motivo}.</p>
+
+                    {talla.hay_stock === false && (
+                      <p className="mi-talla__sin-stock">
+                        No nos queda {talla.talla} de esta prenda
+                        {talla.alternativa && ` — probá con ${talla.alternativa.talla}`}.
+                      </p>
+                    )}
+
+                    {talla.alternativa && talla.hay_stock !== false && (
+                      <p className="mi-talla__motivo">
+                        Si la preferís{' '}
+                        {talla.alternativa.ajuste === 'holgado' ? 'más suelta' : 'más al cuerpo'}, andá
+                        por la {talla.alternativa.talla}.
+                      </p>
+                    )}
+
+                    {/* La confianza se muestra siempre, no solo cuando es alta:
+                        un 45% dicho a tiempo evita una devolucion. */}
+                    <p className="mi-talla__confianza">
+                      Confianza {Math.round(talla.confianza * 100)}%
+                      {talla.confianza < 0.7 && (
+                        <>
+                          {' · '}
+                          <Link to="/mis-medidas">afiná tus medidas</Link>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mi-talla mi-talla--falta">
+                    <p className="mi-talla__motivo">{talla.motivo}.</p>
+                    {talla.falta === 'medidas' && (
+                      <Link to={perfil ? '/mis-medidas' : '/entrar'} className="boton boton--linea">
+                        {perfil ? 'Cargar mis medidas' : 'Entrar para usar el probador'}
+                      </Link>
+                    )}
+                  </div>
+                ))}
 
               {variante && (
                 <p className="ficha__stock">

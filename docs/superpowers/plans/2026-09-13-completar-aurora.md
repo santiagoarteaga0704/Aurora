@@ -164,21 +164,49 @@ salió el dato.
 - Produce: `TallasService.recomendar(clienteId, categoriaId)` →
   `{ talla_id, talla, ajuste: 'justo'|'holgado'|'ajustado', confianza, motivo }`
 
-- [ ] **2.1** Contrato: `medidasSchema` (altura, peso, busto, cintura, cadera,
+- [x] **2.1** Contrato: `medidasSchema` (altura, peso, busto, cintura, cadera,
       todas opcionales salvo altura y peso), tipos de recomendación.
-- [ ] **2.2** `MedidasService`: guardar y leer las medidas del cliente de la
+- [x] **2.2** `MedidasService`: guardar y leer las medidas del cliente de la
       sesión. Nadie lee las medidas de otro.
-- [ ] **2.3** `TallasService.recomendar` con su suite: talla exacta, entre dos
+- [x] **2.3** `TallasService.recomendar` con su suite: talla exacta, entre dos
       tallas, fuera de la guía, y medidas estimadas desde altura y peso.
-- [ ] **2.4** Registrar cada prueba en `prueba_virtual`, con
+- [x] **2.4** Registrar cada prueba en `prueba_virtual`, con
       `convirtio_en_compra` que se marca al comprar esa variante. Eso alimenta
       el reporte `efectividad_probador`, que hoy corre pero siempre da vacío.
-- [ ] **2.5** Pantalla "Mis medidas" en la tienda.
-- [ ] **2.6** En la ficha de producto, botón que devuelve la talla recomendada.
-- [ ] **2.7** Suite + captura. Commit.
+- [x] **2.5** Pantalla "Mis medidas" en la tienda.
+- [x] **2.6** En la ficha de producto, botón que devuelve la talla recomendada.
+- [x] **2.7** Suite + captura. Commit.
 
 **Verificación:** cargar medidas, abrir un vestido y recibir una talla. El
 reporte `efectividad_probador` deja de venir vacío.
+
+**Hecho.** 43 pruebas propias, 503 en total. Capturas en `docs/capturas/`.
+
+Dos desvíos respecto de lo planificado, los dos deliberados:
+
+- **No hay `Probador.tsx` aparte.** El avatar se dibuja dentro de `MisMedidas`,
+  al lado del formulario que lo produce. Una pantalla separada habría mostrado
+  lo mismo sin el contexto que lo hace útil: la silueta sirve justamente para
+  ver, mientras se escribe, que la cadera que se tipeó es la correcta. La
+  pantalla de probarse una prenda encima es la de RA, que es la Tarea 3.
+
+- **La talla no espera al botón.** Con sesión iniciada se busca sola al abrir la
+  ficha. El botón "¿Cuál es mi talla?" quedó solo para quien entra sin sesión,
+  que es a quien sí hay algo que pedirle. Pedirle un clic a la persona cuyas
+  medidas ya tenemos era cobrarle el trámite a quien el probador debía ayudar.
+
+Dos correcciones que salieron al mirar las pantallas, ninguna del probador:
+
+- `Grafico` caía en el `return` de la torta para cualquier `visual` que no
+  reconociera, `tabla` incluido: una plantilla que pide expresamente no dibujar
+  recibía una torta. Afectaba también a la pantalla de Reportes.
+
+- `scripts/captura.mjs` capturaba en blanco sin decir por qué. Eran tres cosas
+  encadenadas: Edge reusaba el perfil del usuario, el login del puente se comía
+  el presupuesto de tiempo virtual, y —la de fondo— Git Bash reescribía
+  `/mis-medidas` como `C:/Program Files/Git/mis-medidas` antes de que Node la
+  leyera. Ahora la ruta va sin barra inicial y, si igual llega convertida, el
+  script lo dice en vez de capturar otra pantalla.
 
 ---
 
