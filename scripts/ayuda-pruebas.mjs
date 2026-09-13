@@ -34,12 +34,17 @@ export function titulo(texto) {
  * cupo del limitador de tasa en lugar del de los demas. Funciona porque la API
  * corre con `trust proxy`, que es lo que necesita detras del proxy de Azure.
  */
-export async function pedir(metodo, ruta, { cuerpo, token, ip, dispositivo, idempotencia } = {}) {
+export async function pedir(
+  metodo,
+  ruta,
+  { cuerpo, token, ip, dispositivo, idempotencia, carrito } = {}
+) {
   const cabeceras = { 'Content-Type': 'application/json' }
   if (token) cabeceras.Authorization = `Bearer ${token}`
   if (ip) cabeceras['X-Forwarded-For'] = ip
   if (dispositivo) cabeceras['X-Dispositivo'] = dispositivo
   if (idempotencia) cabeceras['Idempotency-Key'] = idempotencia
+  if (carrito) cabeceras['X-Carrito'] = carrito
 
   const res = await fetch(`${BASE}${ruta}`, {
     method: metodo,

@@ -14,11 +14,13 @@ import { BASE, resumen } from './ayuda-pruebas.mjs'
 import { probarAuth } from './probar-api.mjs'
 import { probarCatalogo } from './probar-catalogo.mjs'
 import { probarInventario } from './probar-inventario.mjs'
+import { probarVentas } from './probar-ventas.mjs'
 
 const suites = [
   ['Autenticacion', probarAuth],
   ['Catalogo', probarCatalogo],
   ['Inventario y transferencias', probarInventario],
+  ['Carrito, pedidos y pagos', probarVentas],
 ]
 
 async function principal() {

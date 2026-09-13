@@ -62,3 +62,16 @@ export const DispositivoActual = createParamDecorator(
     return valor ? valor.slice(0, 64) : null
   }
 )
+
+/**
+ * Token del carrito anonimo, en la cabecera X-Carrito.
+ *
+ * Permite que alguien arme su carrito sin registrarse y que, al iniciar sesion,
+ * ese carrito se fusione con el de su cuenta en vez de perderse.
+ */
+export const CarritoSesion = createParamDecorator(
+  (_dato: unknown, ctx: ExecutionContext): string | null => {
+    const valor = ctx.switchToHttp().getRequest<Request>().header('x-carrito')
+    return valor ? valor.slice(0, 64) : null
+  }
+)

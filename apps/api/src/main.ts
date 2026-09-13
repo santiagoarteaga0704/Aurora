@@ -42,7 +42,13 @@ async function arrancar(): Promise<void> {
     credentials: true,
     // X-Dispositivo identifica el dispositivo para la cola offline e
     // Idempotency-Key evita que un reintento duplique una venta.
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Dispositivo', 'Idempotency-Key'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Dispositivo',
+      'Idempotency-Key',
+      'X-Carrito',
+    ],
   })
 
   const documento = SwaggerModule.createDocument(
