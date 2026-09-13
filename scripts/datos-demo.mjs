@@ -44,7 +44,7 @@ async function pedir(metodo, ruta, opciones = {}) {
 
   const r = await pedirCrudo(metodo, ruta, { ...opciones, ip: ipDelBloque() })
 
-  if (r.estado >= 400) {
+  if (r.estado >= 400 && !opciones.esperado) {
     const detalle = r.json?.mensaje ?? ''
     console.log(`  ! ${metodo} ${ruta} -> ${r.estado} ${detalle}`.slice(0, 120))
   }
@@ -55,6 +55,7 @@ async function pedir(metodo, ruta, opciones = {}) {
 const SUCURSAL_CENTRO = 1
 const SUCURSAL_VENTURA = 2
 const PISO_CENTRO = 1
+const DEPOSITO_CENTRO = 2
 const PISO_VENTURA = 3
 const CENTRAL = 7
 
@@ -733,6 +734,8 @@ async function principal() {
     const lote = await pedir('POST', '/api/sync/lote', {
       token,
       dispositivo: 'caja-mostrador-demo',
+      // Una de las dos tiene que fallar: es el caso que se quiere mostrar.
+      esperado: true,
       cuerpo: { operaciones: [sinConexion('demo-entra'), sinConexion('demo-tarde')] },
     })
 
@@ -743,6 +746,72 @@ async function principal() {
         : `  no se pudo (${lote.estado})`
     )
   }
+
+  /* --- Compras a proveedores ---------------------------------------------- */
+
+  // Sin compras cargadas, la pantalla no puede mostrar ni el ciclo —borrador,
+  // confirmada, recibida— ni la recepcion contando lo que llego de verdad, que
+  // es la parte que toca el inventario.
+  console.log('\nCompras a proveedores...')
+
+  const proveedores = await pedir('GET', '/api/proveedores', { token })
+  const proveedor = proveedores.json?.datos?.[0]
+
+  let compras = 0
+  if (proveedor && conStock.length >= 3) {
+    const armar = (variantes, costoBase) => ({
+      proveedor_id: proveedor.id,
+      almacen_id: DEPOSITO_CENTRO,
+      descuento: 0,
+      items: variantes.map((v, n) => ({
+        variante_id: v.id,
+        cantidad: 6 + n * 4,
+        costo_unitario: costoBase + n * 15,
+      })),
+    })
+
+    // Una recibida: ya entro al stock y no tiene nada pendiente.
+    const recibida = await pedir('POST', '/api/compras', {
+      token,
+      cuerpo: armar(conStock.slice(0, 3), 120),
+    })
+    if (recibida.estado === 201) {
+      compras++
+      const id = recibida.json.datos.id
+      await pedir('POST', `/api/compras/${id}/confirmar`, { token })
+      // Una linea llega incompleta a proposito: es lo que de verdad pasa, y es
+      // lo unico que demuestra que la recepcion cuenta y no da por buena la
+      // cantidad pedida.
+      await pedir('POST', `/api/compras/${id}/recibir`, {
+        token,
+        cuerpo: {
+          items: recibida.json.datos.items.map((i, n) => ({
+            variante_id: i.variante_id,
+            cantidad_recibida: n === 1 ? i.cantidad - 2 : i.cantidad,
+          })),
+        },
+      })
+    }
+
+    // Una confirmada: esperando que llegue la mercaderia.
+    const enCamino = await pedir('POST', '/api/compras', {
+      token,
+      cuerpo: armar(conStock.slice(3, 5), 210),
+    })
+    if (enCamino.estado === 201) {
+      compras++
+      await pedir('POST', `/api/compras/${enCamino.json.datos.id}/confirmar`, { token })
+    }
+
+    // Una en borrador: todavia se puede editar o anular.
+    const borrador = await pedir('POST', '/api/compras', {
+      token,
+      cuerpo: armar(conStock.slice(0, 2), 95),
+    })
+    if (borrador.estado === 201) compras++
+  }
+
+  console.log(`  ${compras} compras`)
 
   /* --- Anclajes de realidad aumentada ------------------------------------ */
 

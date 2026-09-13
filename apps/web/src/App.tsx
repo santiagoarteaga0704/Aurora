@@ -24,6 +24,9 @@ import { CatalogoOperaciones } from './operaciones/CatalogoOperaciones'
 import { Reportes } from './operaciones/Reportes'
 import { Asistente } from './operaciones/Asistente'
 import { Conflictos } from './operaciones/Conflictos'
+import { Usuarios } from './operaciones/Usuarios'
+import { Roles } from './operaciones/Roles'
+import { Compras } from './operaciones/Compras'
 
 /** Exige sesion; opcionalmente, que sea del personal. */
 function Protegida({ children, personal = false }: { children: ReactNode; personal?: boolean }) {
@@ -111,6 +114,9 @@ export function App() {
         <Route path="reportes" element={<Reportes />} />
         <Route path="asistente" element={<Asistente />} />
         <Route path="sin-aplicar" element={<Conflictos />} />
+        <Route path="usuarios" element={<Usuarios />} />
+        <Route path="roles" element={<Roles />} />
+        <Route path="compras" element={<Compras />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

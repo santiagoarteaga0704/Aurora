@@ -30,6 +30,9 @@ export function LayoutOperaciones() {
     { a: '/op/reportes', texto: 'Reportes', permiso: PERMISOS.REPORTE_VER },
     { a: '/op/asistente', texto: 'Asistente', permiso: PERMISOS.IA_ASISTENTE },
     { a: '/op/sin-aplicar', texto: 'Sin aplicar', permiso: PERMISOS.VENTA_VER },
+    { a: '/op/compras', texto: 'Compras', permiso: PERMISOS.COMPRA_VER },
+    { a: '/op/usuarios', texto: 'Usuarios', permiso: PERMISOS.USUARIO_VER },
+    { a: '/op/roles', texto: 'Roles', permiso: PERMISOS.ROL_GESTIONAR },
   ].filter((s) => puede(s.permiso))
 
   return (

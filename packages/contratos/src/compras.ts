@@ -97,6 +97,32 @@ export const consultaComprasSchema = paginacionSchema.extend({
 
 export type DatosConsultaCompras = z.infer<typeof consultaComprasSchema>
 
+/**
+ * Una compra en el listado.
+ *
+ * No trae las lineas: un listado de veinte compras con todos sus articulos son
+ * cientos de filas que nadie va a mirar. Las lineas llegan al abrir el detalle,
+ * que es cuando se necesitan.
+ *
+ * Este tipo faltaba y el servicio devolvia una forma sin declarar, asi que la
+ * pantalla tuvo que adivinarla —y adivino mal: pidio `items`, que no viene, y
+ * se cayo entera al primer render con datos.
+ */
+export interface CompraResumen {
+  id: string
+  numero: string
+  estado: EstadoCompra
+  proveedor: string
+  almacen: string
+  sucursal: string
+  fecha: string
+  total: number
+  /** Cuantas lineas distintas. */
+  articulos: number
+  /** Cuantas unidades en total. */
+  unidades: number
+}
+
 export interface Compra {
   id: string
   numero: string

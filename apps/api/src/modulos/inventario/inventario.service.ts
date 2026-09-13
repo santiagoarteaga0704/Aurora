@@ -314,6 +314,37 @@ export class InventarioService {
     })
   }
 
+  /**
+   * Los almacenes que el usuario puede ver.
+   *
+   * Hacia falta para armar una compra: sin esto, la pantalla no tenia como
+   * ofrecer a donde entra la mercaderia y solo podia mirar las compras que
+   * alguien mas hubiera cargado.
+   *
+   * Se filtra por sucursal como todo el resto del modulo: un gerente de una
+   * sucursal no elige el deposito de otra.
+   */
+  async almacenes(usuario: UsuarioAutenticado) {
+    const propia = this.permisos.restringeSucursal(usuario)
+
+    const filas = await this.prisma.almacen.findMany({
+      where: {
+        activo: true,
+        ...(propia === null ? {} : { sucursal_id: propia }),
+      },
+      orderBy: [{ sucursal_id: 'asc' }, { nombre: 'asc' }],
+      include: { sucursal: { select: { nombre: true } } },
+    })
+
+    return filas.map((a) => ({
+      id: a.id,
+      nombre: a.nombre,
+      tipo: a.tipo,
+      sucursal_id: a.sucursal_id,
+      sucursal: a.sucursal.nombre,
+    }))
+  }
+
   // ==========================================================================
   // Alcance por sucursal
   // ==========================================================================

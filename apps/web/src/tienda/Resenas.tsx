@@ -152,7 +152,7 @@ export function ResenasProducto({ productoId }: { productoId: number }) {
               <span className="resena__autora">{r.autora}</span>
               {r.talla_comprada && <span className="marca">Talla {r.talla_comprada}</span>}
               {r.ajuste_real && (
-                <span className="marca marca--laton">{NOMBRE_AJUSTE_REAL[r.ajuste_real]}</span>
+                <span className="marca marca--vino">{NOMBRE_AJUSTE_REAL[r.ajuste_real]}</span>
               )}
               <span className="resena__fecha">{fecha(r.creado_en)}</span>
             </div>

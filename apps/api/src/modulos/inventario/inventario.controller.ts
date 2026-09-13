@@ -63,6 +63,13 @@ export class InventarioController {
     return pagina(items, total, filtros)
   }
 
+  @Get('almacenes')
+  @RequierePermiso(PERMISOS.INVENTARIO_VER, PERMISOS.COMPRA_VER)
+  @ApiOperation({ summary: 'Almacenes que el usuario puede ver' })
+  almacenes(@UsuarioActual() usuario: UsuarioAutenticado) {
+    return this.inventario.almacenes(usuario)
+  }
+
   @Get('movimientos')
   @RequierePermiso(PERMISOS.INVENTARIO_VER)
   @ApiOperation({ summary: 'Kardex de movimientos' })

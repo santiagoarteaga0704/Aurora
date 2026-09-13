@@ -127,7 +127,7 @@ export function Conflictos() {
             <li key={o.id} className={clases('conflicto', `conflicto--${o.estado}`)}>
               <div className="conflicto__cabecera">
                 <p className="conflicto__resumen">{o.resumen}</p>
-                <span className={clases('marca', o.estado === 'conflicto' ? 'marca--ocre' : 'marca--alerta')}>
+                <span className={clases('marca', o.estado === 'conflicto' ? 'marca--ojo' : 'marca--mala')}>
                   {o.estado === 'conflicto' ? 'No entró' : 'Rechazada'}
                 </span>
               </div>
@@ -173,7 +173,7 @@ export function Conflictos() {
             <li key={`local-${o.id}`} className="conflicto conflicto--local">
               <div className="conflicto__cabecera">
                 <p className="conflicto__resumen">{o.resumen}</p>
-                <span className="marca marca--ocre">Solo en este equipo</span>
+                <span className="marca marca--ojo">Solo en este equipo</span>
               </div>
 
               <p className="conflicto__motivo">{o.motivo ?? 'No se pudo enviar'}</p>

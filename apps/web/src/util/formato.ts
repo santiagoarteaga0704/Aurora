@@ -36,7 +36,25 @@ const soloFecha = new Intl.DateTimeFormat('es-BO', {
   year: 'numeric',
 })
 
-export const fecha = (iso: string | Date): string => soloFecha.format(new Date(iso))
+/**
+ * Formatea una fecha.
+ *
+ * Un valor de solo fecha —"2026-09-13", que es lo que devuelven las columnas
+ * DATE— lo parsea JavaScript como medianoche UTC. En Bolivia, que va cuatro
+ * horas atras, eso cae a las 20:00 del dia ANTERIOR: una compra registrada hoy
+ * aparecia con la fecha de ayer, en todas las pantallas que muestran una
+ * columna DATE.
+ *
+ * Con hora incluida no pasa: ahi el instante es el mismo en cualquier huso y
+ * convertirlo a la hora local es justamente lo que hay que hacer.
+ */
+export const fecha = (iso: string | Date): string => {
+  if (typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    const [anio, mes, dia] = iso.split('-').map(Number)
+    return soloFecha.format(new Date(anio, mes - 1, dia))
+  }
+  return soloFecha.format(new Date(iso))
+}
 export const fechaCompleta = (iso: string | Date): string => fechaHora.format(new Date(iso))
 
 /** "hace 3 minutos", para la cola de sincronizacion. */

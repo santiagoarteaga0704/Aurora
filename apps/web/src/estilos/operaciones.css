@@ -1679,3 +1679,206 @@
   flex: 1;
   min-width: 24ch;
 }
+
+/* === Administracion de usuarios y roles ===================================
+   Clases que faltaban en el sistema y que van a usar tambien las pantallas de
+   compras, posventa y promociones: una fila dada de baja, un grupo de acciones
+   al final de la fila, y los campos de un modal en dos columnas.
+   ========================================================================= */
+
+.fila--baja td {
+  opacity: 0.55;
+}
+
+.tabla__acciones {
+  display: flex;
+  gap: var(--e2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.tabla__acciones .boton {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+}
+
+.modal__campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--e4);
+  margin-block: var(--e4);
+}
+
+.modal__campos .campo {
+  min-width: 0;
+}
+
+.modal__bajada {
+  margin-top: var(--e1);
+  color: var(--noche-suave);
+  font-size: 0.88rem;
+}
+
+.campo__ayuda {
+  margin-top: var(--e1);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--noche-suave);
+}
+
+/* --- Roles --- */
+
+.roles {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: var(--e6);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .roles {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roles__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  list-style: none;
+}
+
+.roles__item {
+  width: 100%;
+  padding: var(--e3) var(--e4);
+  text-align: left;
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-left: 2px solid transparent;
+  border-radius: var(--radio);
+  transition: var(--transicion);
+}
+
+.roles__item:hover {
+  border-color: var(--noche-suave);
+}
+
+.roles__item--activo {
+  border-left-color: var(--laton);
+  background: var(--noche-alto);
+}
+
+.roles__nombre {
+  display: block;
+  color: var(--noche-texto);
+  text-transform: capitalize;
+}
+
+.roles__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.74rem;
+  color: var(--noche-suave);
+}
+
+.roles__panel {
+  padding: var(--e5);
+  background: var(--noche-panel);
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.roles__modulo {
+  margin-top: var(--e5);
+}
+
+.roles__modulo:first-of-type {
+  margin-top: var(--e4);
+}
+
+.roles__modulo-nombre {
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--noche-borde);
+  text-transform: capitalize;
+}
+
+.roles__permisos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--e2) var(--e4);
+  margin-top: var(--e3);
+  list-style: none;
+}
+
+.roles__permiso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e2);
+  padding: var(--e2) 0;
+  font-size: 0.86rem;
+  color: var(--noche-texto);
+  cursor: pointer;
+}
+
+.roles__permiso input {
+  margin-top: 3px;
+  accent-color: var(--laton);
+}
+
+.roles__permiso-codigo {
+  display: block;
+  font-family: var(--cifra);
+  font-size: 0.7rem;
+  color: var(--noche-suave);
+}
+
+.roles__aviso-sistema {
+  padding: var(--e3) var(--e4);
+  background: var(--noche-alto);
+  border-left: 2px solid var(--ocre);
+  border-radius: var(--radio);
+  font-size: 0.86rem;
+  color: var(--noche-suave);
+  line-height: 1.5;
+}
+
+/* Campo numerico corto: cuenta de recepcion, cantidades en una tabla. */
+.campo__control--corto {
+  width: 6rem;
+  text-align: right;
+}
+
+/* Buscador de articulos al armar una compra. */
+.compra__resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: var(--e2);
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--noche-borde);
+  border-radius: var(--radio);
+}
+
+.compra__resultado {
+  display: flex;
+  gap: var(--e3);
+  width: 100%;
+  padding: var(--e2) var(--e3);
+  text-align: left;
+  font-size: 0.86rem;
+  color: var(--noche-texto);
+  transition: var(--transicion);
+}
+
+.compra__resultado:hover {
+  background: var(--noche-alto);
+}
+
+.compra__sku {
+  flex-shrink: 0;
+  width: 12ch;
+  color: var(--noche-suave);
+  font-size: 0.76rem;
+}

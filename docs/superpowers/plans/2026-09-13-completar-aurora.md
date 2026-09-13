@@ -405,11 +405,11 @@ La API las soporta enteras; les falta la interfaz.
 
 ## Tarea 7: Administración, compras, posventa y cuenta
 
-- [ ] **7.1** `apps/web/src/operaciones/Usuarios.tsx` — personal, alta, edición,
+- [x] **7.1** `apps/web/src/operaciones/Usuarios.tsx` — personal, alta, edición,
       baja, y aprobación de mayoristas.
-- [ ] **7.2** `apps/web/src/operaciones/Roles.tsx` — permisos por rol con las
+- [x] **7.2** `apps/web/src/operaciones/Roles.tsx` — permisos por rol con las
       casillas agrupadas por módulo.
-- [ ] **7.3** `apps/web/src/operaciones/Compras.tsx` — proveedores y compras con
+- [x] **7.3** `apps/web/src/operaciones/Compras.tsx` — proveedores y compras con
       su recepción.
 - [ ] **7.4** `apps/web/src/operaciones/Devoluciones.tsx` — el ciclo completo,
       con la clasificación de prenda al recibir.
