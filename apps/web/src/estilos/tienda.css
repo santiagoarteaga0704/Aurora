@@ -2041,3 +2041,276 @@
   margin-top: var(--e4);
   width: 100%;
 }
+
+/* === Resenias =============================================================
+   Las estrellas son el mismo componente para leer y para calificar, asi que
+   comparten clases: si se vieran distinto, la persona no reconoceria que lo
+   que esta por poner es lo mismo que esta leyendo.
+   ========================================================================= */
+
+.estrellas {
+  display: inline-flex;
+  gap: 1px;
+  line-height: 1;
+}
+
+.estrella {
+  color: var(--papel-borde);
+  font-size: 0.95rem;
+  transition: var(--transicion);
+}
+
+.estrella--llena {
+  color: var(--laton);
+}
+
+.estrellas--grande .estrella {
+  font-size: 1.9rem;
+}
+
+button.estrella {
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+button.estrella:hover {
+  transform: scale(1.12);
+}
+
+.ficha__calificacion {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  margin-top: var(--e2);
+  color: var(--tinta-suave);
+  font-size: 0.84rem;
+}
+
+/* --- Bloque de opiniones en la ficha --- */
+
+.resenas {
+  margin-top: var(--e8);
+  padding-top: var(--e6);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.resenas__titulo {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin-bottom: var(--e5);
+}
+
+.resenas__vacio {
+  color: var(--tinta-suave);
+  max-width: 54ch;
+}
+
+.resenas__resumen {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 260px) auto;
+  gap: var(--e7);
+  align-items: start;
+  padding-bottom: var(--e6);
+  margin-bottom: var(--e5);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+@media (max-width: 720px) {
+  .resenas__resumen {
+    grid-template-columns: 1fr;
+    gap: var(--e5);
+  }
+}
+
+.resenas__promedio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  align-items: flex-start;
+}
+
+.resenas__nota {
+  font-family: var(--display);
+  font-size: 3.4rem;
+  line-height: 1;
+  color: var(--tinta);
+}
+
+.resenas__reparto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.resenas__reparto li {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr 2rem;
+  align-items: center;
+  gap: var(--e3);
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+.resenas__barra {
+  height: 6px;
+  background: var(--papel-hondo);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.resenas__barra-relleno {
+  display: block;
+  height: 100%;
+  background: var(--laton);
+  border-radius: 99px;
+  transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.resenas__reparto-cuantas {
+  text-align: right;
+}
+
+.resenas__talle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  min-width: 180px;
+}
+
+.resenas__talle-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e4);
+  font-size: 0.88rem;
+  color: var(--tinta-media);
+}
+
+/* --- Una resenia --- */
+
+.resenas__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e5);
+}
+
+.resena__cabecera {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--e3);
+}
+
+.resena__autora {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.resena__fecha {
+  margin-left: auto;
+  font-size: 0.76rem;
+  color: var(--tinta-suave);
+}
+
+.resena__texto {
+  margin-top: var(--e2);
+  max-width: 74ch;
+  line-height: 1.6;
+  color: var(--tinta-media);
+}
+
+/* --- Opinar, desde el detalle del pedido --- */
+
+.opinar {
+  margin-top: var(--e6);
+  padding: var(--e5);
+  background: var(--laton-tenue);
+  border-radius: var(--radio-suave);
+}
+
+.opinar__titulo {
+  font-family: var(--display);
+  font-size: 1.5rem;
+}
+
+.opinar__bajada {
+  margin-top: var(--e1);
+  margin-bottom: var(--e4);
+  color: var(--tinta-media);
+  font-size: 0.9rem;
+}
+
+.opinar__lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  /* El reset de base no toca las listas dentro de tarjetas, y aca la viniieta
+     se colaba al costado de cada prenda. */
+  list-style: none;
+}
+
+.opinar__item {
+  padding: var(--e4);
+  background: var(--papel);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio);
+}
+
+.opinar__prenda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+
+.opinar__nombre {
+  font-weight: 600;
+}
+
+.opinar__formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+  margin-top: var(--e4);
+  padding-top: var(--e4);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.opinar__opciones {
+  display: flex;
+  gap: var(--e2);
+  flex-wrap: wrap;
+  margin-top: var(--e2);
+}
+
+.opinar__opcion {
+  padding: 0.4rem 0.8rem;
+  background: var(--papel-hondo);
+  border: 1px solid var(--papel-borde);
+  border-radius: 99px;
+  font-size: 0.84rem;
+  color: var(--tinta-media);
+  transition: var(--transicion);
+}
+
+.opinar__opcion:hover {
+  border-color: var(--laton);
+}
+
+.opinar__opcion--activa {
+  background: var(--vino);
+  border-color: var(--vino);
+  color: var(--papel);
+}
+
+.opinar__moderacion {
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
+  line-height: 1.5;
+}
+
+.opinar__acciones {
+  display: flex;
+  gap: var(--e3);
+  flex-wrap: wrap;
+}

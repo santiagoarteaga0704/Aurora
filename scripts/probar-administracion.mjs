@@ -225,8 +225,8 @@ export async function probarAdministracion() {
   const permisos = await pedir('GET', '/api/permisos', { ip, token })
   verificar('los permisos se listan agrupados por modulo', (permisos.json?.datos?.length ?? 0) > 5)
   verificar(
-    'y suman los 31 del seed',
-    permisos.json?.datos?.reduce((n, m) => n + m.permisos.length, 0) === 31,
+    'y suman los 32 del seed',
+    permisos.json?.datos?.reduce((n, m) => n + m.permisos.length, 0) === 32,
     `${permisos.json?.datos?.reduce((n, m) => n + m.permisos.length, 0)} permisos`
   )
 

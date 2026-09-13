@@ -49,7 +49,8 @@ INSERT INTO permiso (codigo, modulo, descripcion) VALUES
  ('reporte.ver','reporte','Ver reportes'),
  ('reporte.demanda','reporte','Pedir reportes bajo demanda por chat o voz'),
  ('reporte.exportar','reporte','Exportar reportes a PDF o Excel'),
- ('ia.asistente','ia','Usar el asistente conversacional interno');
+ ('ia.asistente','ia','Usar el asistente conversacional interno'),
+ ('resena.moderar','resena','Aprobar o rechazar las resenias con comentario');
 
 -- Administrador: comodin
 INSERT INTO rol_permiso (rol_id, permiso_id)
@@ -62,7 +63,8 @@ SELECT 2, id FROM permiso WHERE codigo IN (
  'inventario.ver','inventario.ajustar','inventario.transferir',
  'compra.ver','compra.gestionar','venta.ver','venta.crear','venta.anular',
  'venta.despachar','pago.confirmar','caja.operar','devolucion.gestionar',
- 'promocion.gestionar','reporte.ver','reporte.demanda','reporte.exportar','ia.asistente');
+ 'promocion.gestionar','reporte.ver','reporte.demanda','reporte.exportar','ia.asistente',
+ 'resena.moderar');
 
 -- Vendedor
 INSERT INTO rol_permiso (rol_id, permiso_id)

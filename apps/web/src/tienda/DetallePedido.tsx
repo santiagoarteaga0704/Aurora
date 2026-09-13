@@ -5,6 +5,7 @@ import { api, ErrorApi } from '../api/cliente'
 import { Cargando, ErrorCarga } from '../componentes/Estados'
 import { bs, clases, fechaCompleta } from '../util/formato'
 import { ESTADO_PEDIDO } from '../util/estados'
+import { OpinarDelPedido } from './Resenas'
 
 interface MetodoPago {
   id: number
@@ -281,6 +282,10 @@ export function DetallePedido() {
           </ol>
         </section>
       )}
+
+      {/* El componente se muestra solo si queda algo sobre lo que opinar: la
+          lista de pendientes la decide el servidor. */}
+      {pedido.estado === 'entregado' && <OpinarDelPedido pedidoId={id} />}
     </div>
   )
 }

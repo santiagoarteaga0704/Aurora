@@ -6,6 +6,7 @@ import { api } from '../api/cliente'
 import { useSesion } from '../sesion/SesionContexto'
 import { useCarrito } from './CarritoContexto'
 import { hayCamara, RealidadAumentada } from './RealidadAumentada'
+import { Estrellas, ResenasProducto } from './Resenas'
 import { Cargando, ErrorCarga } from '../componentes/Estados'
 import { bs, clases, numero } from '../util/formato'
 import { TEMPORADA, TIPO_PRENDA } from '../util/estados'
@@ -233,6 +234,15 @@ export function Producto() {
         <div className="ficha__datos">
           <p className="rotulo">{ficha.marca ?? ficha.categoria}</p>
           <h1 className="ficha__nombre">{ficha.nombre}</h1>
+
+          {/* La calificacion, junto al nombre y no al pie: es lo que decide si
+              alguien sigue leyendo la ficha o vuelve al catalogo. */}
+          {Number(ficha.calificacion) > 0 && (
+            <p className="ficha__calificacion">
+              <Estrellas valor={Math.round(Number(ficha.calificacion))} />
+              <span className="cifra">{Number(ficha.calificacion).toFixed(1)}</span>
+            </p>
+          )}
 
           <p className="ficha__precio cifra">
             {variante ? bs(variante.precio) : bs(ficha.precio_desde)}
@@ -494,6 +504,8 @@ export function Producto() {
           </dl>
         </div>
       </div>
+
+      <ResenasProducto productoId={ficha.id} />
     </div>
   )
 }

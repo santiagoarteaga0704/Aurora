@@ -1,5 +1,5 @@
 /**
- * Catalogo de permisos, identico a los 31 codigos que siembra
+ * Catalogo de permisos, identico a los 32 codigos que siembra
  * database/seed.postgres.sql en la tabla `permiso`.
  *
  * Los permisos viven en la base de datos, no en el codigo: un administrador
@@ -50,6 +50,8 @@ export const PERMISOS = {
   REPORTE_EXPORTAR: 'reporte.exportar',
 
   IA_ASISTENTE: 'ia.asistente',
+
+  RESENA_MODERAR: 'resena.moderar',
 } as const
 
 export type Permiso = (typeof PERMISOS)[keyof typeof PERMISOS]

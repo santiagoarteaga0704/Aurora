@@ -506,46 +506,76 @@ async function principal() {
 
   // Pedidos en distintos estados, para que las pantallas de operaciones no
   // muestren una sola fila.
+  // Una variante por producto, no todas: un pedido de dos colores del mismo
+  // vestido deja una sola opinion —la resenia es por producto— y la ficha de
+  // demostracion quedaria con una linea sola.
   const conStock = []
   for (const producto of creados) {
     const ficha = await pedir('GET', `/api/catalogo/productos/${producto.slug}`, { ip })
-    for (const v of ficha.json?.datos?.variantes ?? []) {
-      if (v.disponible >= 2) conStock.push(v)
-    }
+    const disponible = (ficha.json?.datos?.variantes ?? []).find((v) => v.disponible >= 2)
+    if (disponible) conStock.push(disponible)
   }
 
   let pedidos = 0
-  for (const [n, clienta] of sesiones.entries()) {
-    const elegidas = conStock.slice(n * 2, n * 2 + 2)
-    if (elegidas.length === 0) continue
+  const entregados = []
 
-    const pedido = await pedir('POST', '/api/pedidos', {
+  /**
+   * Cada clienta hace dos pedidos: uno entregado y otro esperando pago.
+   *
+   * Con un pedido por clienta habia que elegir entre mostrar la linea de tiempo
+   * completa o mostrar el cobro pendiente, y las dos pantallas hacen falta. Dos
+   * pedidos cuestan diez segundos de carga y dejan las dos puntas visibles.
+   */
+  const pedir1 = async (clienta, variantes) => {
+    if (variantes.length === 0) return null
+    const r = await pedir('POST', '/api/pedidos', {
       ip,
       token: clienta.token,
       cuerpo: {
         sucursal_id: SUCURSAL_CENTRO,
         tipo_entrega: 'recojo_tienda',
-        items: elegidas.map((v) => ({ variante_id: v.id, cantidad: 1 })),
+        items: variantes.map((v) => ({ variante_id: v.id, cantidad: 1 })),
       },
     })
-
-    if (pedido.estado !== 201) continue
+    if (r.estado !== 201) return null
     pedidos++
-    const id = pedido.json.datos.id
+    return r.json.datos
+  }
 
-    // El primero queda pagado y preparandose; el segundo, esperando pago.
-    if (n === 0) {
-      await pedir('POST', `/api/pedidos/${id}/pagos`, {
+  // Un cursor y no rangos fijos: con `slice(n*4, ...)` el reparto se pasaba de
+  // largo en cuanto habia menos productos que posiciones, y la segunda clienta
+  // se quedaba sin su pedido pendiente sin que nada fallara.
+  let cursor = 0
+  const tomar = (cuantos) => {
+    const trozo = conStock.slice(cursor, cursor + cuantos)
+    cursor += trozo.length
+    return trozo
+  }
+
+  for (const [n, clienta] of sesiones.entries()) {
+    const entregado = await pedir1(clienta, tomar(2))
+    if (entregado) {
+      await pedir('POST', `/api/pedidos/${entregado.id}/pagos`, {
         ip,
         token,
-        cuerpo: { metodo_pago_id: 4, monto: pedido.json.datos.total },
+        cuerpo: { metodo_pago_id: 4, monto: entregado.total },
       })
-      await pedir('POST', `/api/pedidos/${id}/estado`, {
-        ip,
-        token,
-        cuerpo: { estado: 'preparando' },
-      })
+      for (const estado of ['preparando', 'listo', 'entregado']) {
+        await pedir('POST', `/api/pedidos/${entregado.id}/estado`, {
+          ip,
+          token,
+          cuerpo: { estado },
+        })
+      }
+
+      // Solo la primera clienta opina. La segunda queda con su pedido entregado
+      // y sin calificar, que es lo que hace falta para poder mostrar la
+      // pantalla de opinar con algo adentro.
+      if (n === 0) entregados.push({ id: entregado.id, clienta })
     }
+
+    // El segundo queda esperando pago.
+    await pedir1(clienta, tomar(1))
   }
 
   // Una venta de mostrador, para que la caja tenga movimiento.
@@ -571,6 +601,61 @@ async function principal() {
   }
 
   console.log(`  ${pedidos} pedidos`)
+
+  /* --- Opiniones --------------------------------------------------------- */
+
+  // Sin opiniones, la ficha de producto muestra "todavia nadie opino" y no se
+  // puede ver funcionando ni el reparto por estrellas ni lo que dice la gente
+  // del talle, que es la parte que de verdad ayuda a elegir.
+  console.log('\nOpiniones...')
+
+  const OPINIONES = [
+    {
+      calificacion: 5,
+      ajuste_real: 'justa',
+      comentario: 'La tela cae muy bien y el color es igual al de la foto. Me quedo perfecto.',
+    },
+    {
+      calificacion: 4,
+      ajuste_real: 'grande',
+      comentario: 'Muy linda, pero me quedo un poco holgada de arriba. La proxima pido una menos.',
+    },
+  ]
+
+  let opiniones = 0
+  for (const entrega of entregados) {
+    const pendientes = await pedir('GET', '/api/resenas/pendientes', {
+      ip,
+      token: entrega.clienta.token,
+    })
+
+    for (const [n, compra] of (pendientes.json?.datos ?? []).entries()) {
+      const opinion = OPINIONES[n % OPINIONES.length]
+      const r = await pedir('POST', '/api/resenas', {
+        ip,
+        token: entrega.clienta.token,
+        cuerpo: {
+          producto_id: compra.producto_id,
+          pedido_id: compra.pedido_id,
+          ...opinion,
+        },
+      })
+
+      if (r.estado !== 201) continue
+      opiniones++
+
+      // Se aprueban aca mismo: la demostracion tiene que mostrar la ficha con
+      // los comentarios puestos, no la cola de moderacion vacia esperando a
+      // que alguien entre a aprobarlos.
+      await pedir('PUT', `/api/resenas/${r.json.datos.id}/moderar`, {
+        ip,
+        token,
+        cuerpo: { aprobada: true },
+      })
+    }
+  }
+
+  console.log(`  ${opiniones} opiniones publicadas`)
 
   /* --- Anclajes de realidad aumentada ------------------------------------ */
 

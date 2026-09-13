@@ -269,13 +269,34 @@ Tres decisiones que conviene tener a mano para la defensa:
 **Tabla:** `resena` (tiene el CHECK de calificación 1 a 5 y el único
 `producto_id + cliente_id + pedido_id`).
 
-- [ ] **4.1** Contrato y servicio: solo puede reseñar quien compró esa variante
+- [x] **4.1** Contrato y servicio: solo puede reseñar quien compró esa variante
       en un pedido entregado. La restricción única de la base ya impide dos
       reseñas del mismo pedido.
-- [ ] **4.2** Recalcular `producto.calificacion` al crear o borrar una reseña.
-- [ ] **4.3** Mostrar reseñas en la ficha de producto y permitir escribirlas
+- [x] **4.2** Recalcular `producto.calificacion` al crear o borrar una reseña.
+- [x] **4.3** Mostrar reseñas en la ficha de producto y permitir escribirlas
       desde el detalle de un pedido entregado.
-- [ ] **4.4** Suite + commit.
+- [x] **4.4** Suite + commit.
+
+**Hecho.** 27 pruebas propias, 539 en total. Capturas en `docs/capturas/`.
+
+Dos decisiones que no estaban en el plan y conviene tener a mano:
+
+- **La calificación se publica sola; el comentario espera revisión.** Un número
+  del 1 al 5 no tiene nada que moderar, y retenerlo solo demora el único dato
+  que el catálogo necesita. El texto libre sí: es lo que puede traer un insulto
+  o el teléfono de un competidor. La prueba manda justamente eso y comprueba
+  que no aparece en la ficha ni mueve la estrella.
+
+- **Se agregó el permiso `resena.moderar`** (32 en total, antes 31) y lo tiene
+  el gerente, no el vendedor: quien vendió la prenda tiene interés en la reseña
+  y no corresponde que la apruebe.
+
+La talla reseñada **sale del pedido**, no de lo que mande el cliente. Es el dato
+que después permite saber si la guía de tallas de una categoría está bien
+calibrada —el circuito que cierra con la Tarea 2— y no valdría nada si
+cualquiera pudiera declarar una talla que no compró.
+
+---
 
 ## Tarea 5: Notificaciones
 
