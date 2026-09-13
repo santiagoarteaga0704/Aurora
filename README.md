@@ -123,7 +123,7 @@ después del primer ingreso.
 | `npm run db:cargar` | Vacía la base y vuelve a aplicar esquema y semilla |
 | `npm run api` | Levanta la API en modo watch |
 | `npm run build` | Compila el contrato y la API |
-| `node scripts/probar-api.mjs` | Batería de pruebas de la API |
+| `npm run pruebas` | Las siete suites de prueba de la API |
 
 ## Estado
 
