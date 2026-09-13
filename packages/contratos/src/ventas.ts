@@ -127,6 +127,22 @@ export const crearPedidoSchema = z
     /** Marca las ventas que se registraron sin conexion y se sincronizaron. */
     creado_offline: z.boolean().default(false),
     creado_en_cliente: z.coerce.date().optional(),
+    /**
+     * Cobro en el mismo acto, para el punto de venta.
+     *
+     * En el mostrador la venta y el cobro son un solo hecho, y sobre todo: una
+     * venta hecha sin conexion se encola como UNA operacion. Si el pago fuera
+     * una peticion aparte, la cola tendria que encadenar dos llamadas y pasarle
+     * a la segunda el id que devolvio la primera, que es justo el tipo de cosa
+     * que se rompe cuando la red va y viene.
+     */
+    pago: z
+      .object({
+        metodo_pago_id: idSchema,
+        monto: z.coerce.number().positive().max(9_999_999.99),
+        referencia_externa: z.string().trim().max(120).optional(),
+      })
+      .optional(),
   })
   .refine((p) => p.tipo_entrega !== 'domicilio' || p.direccion_id !== undefined, {
     message: 'Un envio a domicilio necesita una direccion',

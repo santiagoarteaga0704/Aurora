@@ -1,0 +1,1678 @@
+/* ===========================================================================
+   AURORA — la tienda
+   Papel hueso, aire y tipografia editorial. El registro que tiene que seducir.
+   =========================================================================== */
+
+.tienda {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.tienda__cuerpo {
+  flex: 1;
+}
+
+/* === Barra de conexion ====================================================
+   Vive arriba de todo y en las dos mitades de la aplicacion.
+   ========================================================================= */
+
+.barra-conexion {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding: 0.55rem 1.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+.barra-conexion--corte {
+  background: #3b2a08;
+  color: #f7e9c8;
+}
+
+.barra-conexion--cola {
+  background: var(--laton-tenue);
+  color: #6b4c0d;
+  border-bottom: 1px solid rgba(107, 76, 13, 0.2);
+}
+
+.barra-conexion strong {
+  font-weight: 600;
+}
+
+.barra-conexion__detalle {
+  opacity: 0.85;
+}
+
+@keyframes pulsar {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.35;
+  }
+}
+
+.barra-conexion__punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulsar 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.barra-conexion__accion {
+  margin-left: auto;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radio);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: var(--transicion);
+}
+
+.barra-conexion__accion:hover:not(:disabled) {
+  background: currentColor;
+  color: var(--papel);
+}
+
+.barra-conexion__accion:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+/* === Marca ================================================================ */
+
+.marca-aurora {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  line-height: 1;
+}
+
+.marca-aurora--pie {
+  font-size: 1.6rem;
+  margin-bottom: var(--e3);
+}
+
+.marca-aurora--acceso {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: var(--e6);
+}
+
+/* === Cabecera ============================================================= */
+
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--papel) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+:root[data-conexion='offline'] .cabecera {
+  top: 2.2rem;
+}
+
+.cabecera__interior {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--e5);
+  min-height: 74px;
+}
+
+.cabecera__hamburguesa {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--e2);
+}
+
+.cabecera__hamburguesa span {
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--tinta);
+}
+
+.cabecera__nav {
+  display: flex;
+  justify-content: center;
+  gap: var(--e5);
+}
+
+.cabecera__enlace {
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--tinta-media);
+  position: relative;
+  padding-block: var(--e2);
+  transition: var(--transicion);
+}
+
+.cabecera__enlace::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1px;
+  background: var(--vino);
+  transition: width var(--transicion);
+}
+
+.cabecera__enlace:hover,
+.cabecera__enlace.active {
+  color: var(--vino);
+}
+
+.cabecera__enlace:hover::after,
+.cabecera__enlace.active::after {
+  width: 100%;
+}
+
+.cabecera__acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+}
+
+.cabecera__cuenta {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+}
+
+.cabecera__carrito {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--tinta);
+  border-radius: var(--radio);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: var(--transicion);
+}
+
+.cabecera__carrito:hover {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.cabecera__contador {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding-inline: 4px;
+  background: var(--vino);
+  color: var(--papel);
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.cabecera__carrito:hover .cabecera__contador {
+  background: var(--papel);
+  color: var(--vino);
+}
+
+/* === Portada ==============================================================
+   Reja asimetrica: el titulo se desborda de su columna y la promesa cae abajo
+   a la derecha. Una portada centrada es lo que hace que una tienda parezca una
+   plantilla.
+   ========================================================================= */
+
+.portada {
+  position: relative;
+  padding-block: var(--e9) var(--e8);
+  overflow: hidden;
+}
+
+/* Trama diagonal muy tenue: da textura de papel sin ensuciar. */
+.portada::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    58deg,
+    transparent,
+    transparent 22px,
+    rgba(110, 26, 43, 0.028) 22px,
+    rgba(110, 26, 43, 0.028) 23px
+  );
+  pointer-events: none;
+}
+
+.portada::after {
+  content: '';
+  position: absolute;
+  top: -18%;
+  right: -12%;
+  width: 46vw;
+  height: 46vw;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, rgba(168, 132, 60, 0.14), transparent 68%);
+  pointer-events: none;
+}
+
+.portada__reja {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: var(--e6) var(--e7);
+  align-items: end;
+}
+
+.portada__temporada {
+  grid-column: 1 / -1;
+}
+
+.portada__titulo {
+  grid-column: 1;
+  font-size: clamp(3.2rem, 9.5vw, 8.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  /* El titulo se sale un poco de la columna: rompe la reja a proposito. */
+  margin-left: -0.06em;
+}
+
+.portada__titulo em {
+  font-style: italic;
+  color: var(--vino);
+}
+
+.portada__promesa {
+  grid-column: 2;
+  padding-bottom: var(--e3);
+  border-left: 1px solid var(--papel-borde);
+  padding-left: var(--e5);
+}
+
+.portada__promesa p {
+  font-size: 1.02rem;
+  color: var(--tinta-media);
+  max-width: 42ch;
+}
+
+.portada__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e3);
+  margin-top: var(--e5);
+}
+
+.portada__datos {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--e8);
+  margin-top: var(--e5);
+  padding-top: var(--e5);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.portada__datos > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+}
+
+.portada__dato {
+  font-family: var(--display);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+/* === Secciones ============================================================ */
+
+.seccion {
+  padding-block: var(--e8);
+}
+
+.seccion__cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e4);
+  margin-bottom: var(--e6);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.seccion__vermas {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vino);
+  white-space: nowrap;
+}
+
+.seccion__vermas:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* === Grilla de productos ================================================== */
+
+.grilla-productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--e5) var(--e4);
+}
+
+/* En la seleccion de la casa, la primera tarjeta ocupa el doble. */
+.grilla-productos--destacada > :first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.grilla-productos--destacada > :first-child .tarjeta__lienzo {
+  aspect-ratio: 1 / 1;
+}
+
+.grilla-productos--destacada > :first-child .tarjeta__nombre {
+  font-size: 1.6rem;
+}
+
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  group: tarjeta;
+}
+
+.tarjeta__lienzo {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  background: var(--papel-hondo);
+  overflow: hidden;
+  transition: var(--transicion);
+}
+
+.tarjeta:hover .tarjeta__lienzo {
+  background: var(--vino-tenue);
+}
+
+.tarjeta__lienzo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tarjeta:hover .tarjeta__lienzo img {
+  transform: scale(1.05);
+}
+
+/* Sin foto: una placa tipografica con la inicial. Resuelve el hueco de datos
+   sin romper el tono. */
+.tarjeta__inicial {
+  font-size: 5rem;
+  color: var(--papel-borde);
+  transition: var(--transicion);
+  user-select: none;
+}
+
+.tarjeta:hover .tarjeta__inicial {
+  color: var(--vino);
+  opacity: 0.35;
+}
+
+.tarjeta__cinta,
+.tarjeta__agotado {
+  position: absolute;
+  top: var(--e3);
+  left: var(--e3);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tarjeta__cinta {
+  background: var(--vino);
+  color: var(--papel);
+}
+
+.tarjeta__agotado {
+  top: auto;
+  bottom: var(--e3);
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.tarjeta__pie {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tarjeta__nombre {
+  font-size: 1.05rem;
+  line-height: 1.25;
+  transition: var(--transicion);
+}
+
+.tarjeta:hover .tarjeta__nombre {
+  color: var(--vino);
+}
+
+.tarjeta__precio {
+  font-size: 0.88rem;
+  color: var(--tinta-media);
+}
+
+.tarjeta-esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+}
+
+.tarjeta-esqueleto__imagen {
+  aspect-ratio: 3 / 4;
+}
+
+.tarjeta-esqueleto__linea {
+  height: 12px;
+}
+
+.tarjeta-esqueleto__linea--corta {
+  width: 45%;
+}
+
+/* === Franja de argumentos ================================================= */
+
+.franja {
+  background: var(--tinta);
+  color: var(--papel);
+  padding-block: var(--e8);
+}
+
+.franja__interior {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--e6);
+}
+
+.franja__bloque .rotulo {
+  color: var(--laton);
+}
+
+.franja__bloque h3 {
+  margin-block: var(--e2) var(--e3);
+  font-size: 1.5rem;
+}
+
+.franja__bloque p {
+  color: rgba(246, 242, 236, 0.72);
+  font-size: 0.92rem;
+}
+
+/* === Pie ================================================================== */
+
+.pie {
+  margin-top: auto;
+  padding-top: var(--e7);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.pie__interior {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--e6);
+  padding-bottom: var(--e6);
+}
+
+.pie__nota {
+  color: var(--tinta-media);
+  max-width: 40ch;
+  font-size: 0.9rem;
+}
+
+.pie__columnas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--e5);
+}
+
+.pie__columnas > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+}
+
+.pie__columnas a {
+  font-size: 0.88rem;
+  color: var(--tinta-media);
+  transition: var(--transicion);
+}
+
+.pie__columnas a:hover {
+  color: var(--vino);
+}
+
+.pie__legal {
+  display: flex;
+  justify-content: space-between;
+  padding-block: var(--e4);
+  border-top: 1px solid var(--papel-borde);
+  font-size: 0.76rem;
+  color: var(--tinta-suave);
+}
+
+/* === Catalogo ============================================================= */
+
+.catalogo {
+  padding-block: var(--e6) var(--e8);
+}
+
+.catalogo__cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--e4);
+  margin-bottom: var(--e6);
+  padding-bottom: var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.catalogo__titulo {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+}
+
+.buscador {
+  display: flex;
+  min-width: min(100%, 420px);
+  border-bottom: 1px solid var(--tinta);
+}
+
+.buscador__campo {
+  flex: 1;
+  padding: var(--e2) 0;
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.buscador__campo:focus {
+  outline: none;
+}
+
+.buscador__accion {
+  padding-inline: var(--e3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vino);
+}
+
+.catalogo__cuerpo {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: var(--e7);
+  align-items: start;
+}
+
+.catalogo__abrir-filtros {
+  display: none;
+}
+
+.filtros {
+  position: sticky;
+  top: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e5);
+}
+
+.filtros__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  padding-bottom: var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.filtros__lista,
+.filtros__sublista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.filtros__sublista {
+  margin-left: var(--e3);
+  padding-left: var(--e3);
+  border-left: 1px solid var(--papel-borde);
+  margin-top: 0.1rem;
+}
+
+.filtros__opcion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.25rem 0;
+  font-size: 0.88rem;
+  color: var(--tinta-media);
+  transition: var(--transicion);
+}
+
+.filtros__opcion:hover {
+  color: var(--vino);
+}
+
+.filtros__opcion--hija {
+  font-size: 0.83rem;
+}
+
+.filtros__opcion--activa {
+  color: var(--vino);
+  font-weight: 600;
+}
+
+.filtros__fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+.ficha-talla {
+  min-width: 40px;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio);
+  font-family: var(--cifra);
+  font-size: 0.8rem;
+  transition: var(--transicion);
+}
+
+.ficha-talla:hover:not(:disabled) {
+  border-color: var(--tinta);
+}
+
+.ficha-talla--activa {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--papel);
+}
+
+.ficha-talla--agotada {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.ficha-color {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--muestra, #ccc);
+  border: 1px solid var(--papel-borde);
+  box-shadow: inset 0 0 0 2px var(--papel);
+  transition: var(--transicion);
+}
+
+.ficha-color:hover {
+  transform: scale(1.12);
+}
+
+.ficha-color--activa {
+  border-color: var(--tinta);
+  box-shadow:
+    inset 0 0 0 2px var(--papel),
+    0 0 0 2px var(--tinta);
+}
+
+.filtros__rango {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--e2);
+}
+
+.filtros__rango input {
+  padding: 0.4rem 0.5rem;
+  font-family: var(--cifra);
+  font-size: 0.82rem;
+}
+
+.catalogo__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  margin-bottom: var(--e5);
+}
+
+.catalogo__orden select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.paginador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e4);
+  margin-top: var(--e7);
+}
+
+.paginador__posicion {
+  font-size: 0.9rem;
+  color: var(--tinta-media);
+}
+
+/* === Ficha de producto ==================================================== */
+
+.migas {
+  display: flex;
+  gap: var(--e2);
+  margin-bottom: var(--e5);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.migas a:hover {
+  color: var(--vino);
+}
+
+.ficha {
+  padding-block: var(--e5) var(--e8);
+}
+
+.ficha__reja {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: var(--e8);
+  align-items: start;
+}
+
+.ficha__visual {
+  position: sticky;
+  top: 110px;
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  background: var(--papel-hondo);
+  overflow: hidden;
+}
+
+.ficha__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ficha__inicial {
+  font-size: 12rem;
+  color: var(--papel-borde);
+  user-select: none;
+}
+
+.ficha__nombre {
+  margin-block: var(--e2) var(--e3);
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+}
+
+.ficha__precio {
+  font-size: 1.5rem;
+  color: var(--vino);
+  margin-bottom: var(--e5);
+}
+
+.ficha__descripcion {
+  color: var(--tinta-media);
+  margin-bottom: var(--e5);
+  max-width: 52ch;
+}
+
+.ficha__eleccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e5);
+  padding-block: var(--e5);
+  border-block: 1px solid var(--papel-borde);
+}
+
+.ficha__paso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+}
+
+.ficha__paso-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.ficha__elegido {
+  margin-left: var(--e2);
+  color: var(--tinta);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.ficha__colores,
+.ficha__tallas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e2);
+}
+
+.ficha__colores .ficha-color {
+  width: 32px;
+  height: 32px;
+}
+
+.ficha__guia-enlace {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vino);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ficha__stock {
+  font-size: 0.82rem;
+  color: var(--tinta-suave);
+}
+
+.guia-tallas {
+  margin-top: var(--e4);
+  padding: var(--e4);
+  background: var(--papel-hondo);
+}
+
+.escalas {
+  margin-top: var(--e5);
+  padding: var(--e4);
+  border: 1px solid var(--laton);
+  background: var(--laton-tenue);
+}
+
+.escalas ul {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--e2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+}
+
+.escalas li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.ficha__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  margin-top: var(--e5);
+}
+
+.ficha__detalles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--e4);
+  margin-top: var(--e6);
+  padding-top: var(--e5);
+  border-top: 1px solid var(--papel-borde);
+}
+
+.ficha__detalles dd {
+  margin-top: 0.15rem;
+  font-size: 0.9rem;
+}
+
+/* === Bolsa ================================================================ */
+
+.bolsa {
+  padding-block: var(--e6) var(--e8);
+}
+
+.bolsa__cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--e5);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.bolsa__reja {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--e7);
+  align-items: start;
+}
+
+.bolsa__lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.linea-bolsa {
+  display: grid;
+  grid-template-columns: 88px 1fr auto auto;
+  gap: var(--e4);
+  align-items: center;
+  padding-block: var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.linea-bolsa--problema {
+  background: var(--alerta-tenue);
+  margin-inline: calc(var(--e3) * -1);
+  padding-inline: var(--e3);
+}
+
+.linea-bolsa__visual {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  background: var(--papel-hondo);
+  overflow: hidden;
+  font-size: 2rem;
+  color: var(--papel-borde);
+}
+
+.linea-bolsa__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.linea-bolsa__nombre {
+  font-family: var(--display);
+  font-size: 1.1rem;
+}
+
+.linea-bolsa__nombre:hover {
+  color: var(--vino);
+}
+
+.linea-bolsa__variante {
+  font-size: 0.85rem;
+  color: var(--tinta-media);
+}
+
+.linea-bolsa__sku {
+  font-size: 0.72rem;
+  color: var(--tinta-suave);
+}
+
+.linea-bolsa__alerta {
+  margin-top: var(--e2);
+  font-size: 0.8rem;
+  color: var(--alerta);
+}
+
+.linea-bolsa__cantidad {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--papel-borde);
+}
+
+.linea-bolsa__cantidad button {
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;
+  color: var(--tinta-media);
+  transition: var(--transicion);
+}
+
+.linea-bolsa__cantidad button:hover:not(:disabled) {
+  background: var(--tinta);
+  color: var(--papel);
+}
+
+.linea-bolsa__cantidad button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.linea-bolsa__cantidad span {
+  min-width: 34px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.linea-bolsa__importe {
+  text-align: right;
+}
+
+.linea-bolsa__importe > p:first-child {
+  font-size: 1rem;
+}
+
+.linea-bolsa__unitario {
+  font-size: 0.74rem;
+  color: var(--tinta-suave);
+}
+
+/* === Resumen lateral ====================================================== */
+
+.resumen {
+  position: sticky;
+  top: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+  padding: var(--e5);
+  background: var(--papel-hondo);
+}
+
+.resumen__items {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  padding-bottom: var(--e3);
+  border-bottom: 1px solid var(--papel-borde);
+  font-size: 0.88rem;
+}
+
+.resumen__items li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e3);
+}
+
+.resumen__variante {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--tinta-suave);
+}
+
+.resumen__linea {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.resumen__linea--nota {
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
+}
+
+.resumen__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: var(--e3);
+  margin-top: var(--e2);
+  border-top: 1px solid var(--tinta);
+  font-family: var(--display);
+  font-size: 1.35rem;
+}
+
+.resumen__seguir {
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tinta-media);
+}
+
+.resumen__seguir:hover {
+  color: var(--vino);
+}
+
+.resumen__nota {
+  font-size: 0.76rem;
+  color: var(--tinta-suave);
+  text-align: center;
+}
+
+/* === Checkout ============================================================= */
+
+.checkout {
+  padding-block: var(--e6) var(--e8);
+}
+
+.checkout h1 {
+  margin-bottom: var(--e5);
+}
+
+.checkout__reja {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--e7);
+  align-items: start;
+}
+
+.checkout__pasos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e6);
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e3);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e4);
+}
+
+.formulario__par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e3);
+}
+
+.opciones-entrega,
+.acceso__opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e3);
+}
+
+.opcion-entrega {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  padding: var(--e4);
+  border: 1px solid var(--papel-borde);
+  text-align: left;
+  transition: var(--transicion);
+}
+
+.opcion-entrega:hover {
+  border-color: var(--tinta);
+}
+
+.opcion-entrega--activa {
+  border-color: var(--vino);
+  background: var(--vino-tenue);
+}
+
+.opcion-entrega__titulo {
+  font-family: var(--display);
+  font-size: 1.1rem;
+}
+
+.opcion-entrega__nota {
+  font-size: 0.8rem;
+  color: var(--tinta-media);
+}
+
+.lista-sucursales {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--e3);
+}
+
+.sucursal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--e4);
+  border: 1px solid var(--papel-borde);
+  text-align: left;
+  transition: var(--transicion);
+}
+
+.sucursal:hover {
+  border-color: var(--tinta);
+}
+
+.sucursal--activa {
+  border-color: var(--vino);
+  background: var(--vino-tenue);
+}
+
+.sucursal__nombre {
+  font-family: var(--display);
+  font-size: 1.05rem;
+}
+
+.sucursal__direccion,
+.sucursal__horario {
+  font-size: 0.82rem;
+  color: var(--tinta-media);
+}
+
+.acceso__tipo {
+  border: none;
+  padding: 0;
+}
+
+/* === Pedido =============================================================== */
+
+.pedido__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e4);
+  margin-bottom: var(--e5);
+  padding-bottom: var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.pedido__numero {
+  font-size: 2.2rem;
+  letter-spacing: -0.02em;
+}
+
+.tabla th {
+  padding: var(--e2) var(--e3);
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.tabla td {
+  padding: var(--e3);
+  border-bottom: 1px solid var(--papel-borde);
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.tabla--compacta td,
+.tabla--compacta th {
+  padding: var(--e2) var(--e3);
+  font-size: 0.85rem;
+}
+
+.tabla__num {
+  text-align: right;
+}
+
+.tabla__sub {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--tinta-suave);
+}
+
+.totales {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  margin-top: var(--e4);
+  margin-left: auto;
+  width: min(100%, 320px);
+}
+
+.totales > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.totales--descuento {
+  color: var(--salvia);
+}
+
+.totales__total {
+  padding-top: var(--e2);
+  border-top: 1px solid var(--tinta);
+  font-family: var(--display);
+  font-size: 1.2rem;
+}
+
+.metodos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--e2);
+}
+
+.metodo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: var(--e3);
+  border: 1px solid var(--papel-borde);
+  text-align: left;
+  transition: var(--transicion);
+}
+
+.metodo--activo {
+  border-color: var(--vino);
+  background: var(--vino-tenue);
+}
+
+.metodo__nombre {
+  font-size: 0.92rem;
+}
+
+.metodo__nota {
+  font-size: 0.72rem;
+  color: var(--tinta-suave);
+}
+
+.linea-tiempo {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.linea-tiempo li {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--e3);
+  padding-bottom: var(--e4);
+  position: relative;
+}
+
+.linea-tiempo li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: var(--papel-borde);
+}
+
+.linea-tiempo__punto {
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background: var(--vino);
+  position: relative;
+  z-index: 1;
+}
+
+.linea-tiempo__estado {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.linea-tiempo__nota {
+  font-size: 0.85rem;
+  color: var(--tinta-media);
+}
+
+.linea-tiempo__fecha {
+  font-size: 0.74rem;
+  color: var(--tinta-suave);
+}
+
+.lista-pedidos {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--e5);
+}
+
+.fila-pedido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e4);
+  padding-block: var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+  transition: var(--transicion);
+}
+
+.fila-pedido:hover {
+  background: var(--papel-hondo);
+  padding-inline: var(--e3);
+  margin-inline: calc(var(--e3) * -1);
+}
+
+.fila-pedido__numero {
+  font-size: 1.05rem;
+}
+
+.fila-pedido__meta {
+  font-size: 0.82rem;
+  color: var(--tinta-suave);
+}
+
+.fila-pedido__derecha {
+  display: flex;
+  align-items: center;
+  gap: var(--e4);
+}
+
+.fila-pedido__total {
+  font-size: 1.05rem;
+}
+
+/* === Acceso =============================================================== */
+
+.acceso {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: var(--e5);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(168, 132, 60, 0.12), transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(110, 26, 43, 0.1), transparent 55%), var(--papel);
+}
+
+.acceso__caja {
+  width: min(100%, 440px);
+  padding: var(--e7) var(--e6);
+  background: var(--papel);
+  border: 1px solid var(--papel-borde);
+  box-shadow: var(--sombra-alta);
+}
+
+.acceso__pestanias {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: var(--e5);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.acceso__pestania {
+  padding: var(--e3);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  border-bottom: 2px solid transparent;
+  transition: var(--transicion);
+}
+
+.acceso__pestania--activa {
+  color: var(--vino);
+  border-bottom-color: var(--vino);
+}
+
+.acceso__pie {
+  margin-top: var(--e5);
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--tinta-suave);
+}
+
+.acceso__pie a {
+  color: var(--vino);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* === Estados ============================================================== */
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  padding-block: var(--e8);
+  text-align: center;
+}
+
+.estado--vacio {
+  gap: var(--e4);
+}
+
+.estado__titulo {
+  font-size: 1.8rem;
+}
+
+.estado__detalle {
+  color: var(--tinta-media);
+  max-width: 44ch;
+}
+
+.estado__pulso {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--papel-borde);
+  border-top-color: var(--vino);
+  border-radius: 50%;
+  animation: girar 900ms linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pantalla-carga {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+}
+
+/* === Adaptacion =========================================================== */
+
+@media (max-width: 1060px) {
+  .portada__reja {
+    grid-template-columns: 1fr;
+  }
+  .portada__titulo,
+  .portada__promesa {
+    grid-column: 1;
+  }
+  .portada__promesa {
+    border-left: none;
+    padding-left: 0;
+  }
+  .portada__datos {
+    gap: var(--e6);
+  }
+  .bolsa__reja,
+  .checkout__reja,
+  .ficha__reja {
+    grid-template-columns: 1fr;
+  }
+  .ficha__visual,
+  .resumen,
+  .filtros {
+    position: static;
+  }
+  .grilla-productos--destacada > :first-child {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+@media (max-width: 860px) {
+  .cabecera__interior {
+    grid-template-columns: auto 1fr auto;
+  }
+  .cabecera__hamburguesa {
+    display: flex;
+  }
+  .cabecera__nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: var(--e4) 1.25rem;
+    background: var(--papel);
+    border-bottom: 1px solid var(--papel-borde);
+    display: none;
+  }
+  .cabecera__nav--abierto {
+    display: flex;
+  }
+  .catalogo__cuerpo {
+    grid-template-columns: 1fr;
+  }
+  .catalogo__abrir-filtros {
+    display: inline-flex;
+    margin-bottom: var(--e4);
+  }
+  .filtros {
+    display: none;
+  }
+  .filtros--abiertos {
+    display: flex;
+  }
+  .linea-bolsa {
+    grid-template-columns: 70px 1fr;
+    grid-template-areas:
+      'visual datos'
+      'cantidad importe';
+  }
+  .linea-bolsa__visual {
+    grid-area: visual;
+  }
+  .linea-bolsa__datos {
+    grid-area: datos;
+  }
+  .linea-bolsa__cantidad {
+    grid-area: cantidad;
+  }
+  .linea-bolsa__importe {
+    grid-area: importe;
+  }
+  .pie__interior,
+  .formulario__par,
+  .ficha__detalles {
+    grid-template-columns: 1fr;
+  }
+}

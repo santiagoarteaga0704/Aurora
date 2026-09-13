@@ -16,8 +16,8 @@ qué sigue.
 | Modelo de datos | ✅ 54 tablas + 2 vistas en PostgreSQL 16 |
 | Backend (núcleo) | ✅ Prisma, JWT, RBAC, bitácora, validación, límite de tasa |
 | Backend (módulos) | ✅ **11 de 11** — 91 endpoints |
-| Pruebas de la API | ✅ 368 comprobaciones en verde |
-| PWA web | ⬜ sin empezar |
+| Pruebas de la API | ✅ 374 comprobaciones en verde |
+| PWA web | ✅ tienda y punto de venta, **funcionando sin conexión** |
 | App React Native | ⬜ sin empezar |
 | Probador RA e IA | ⬜ sin empezar |
 | Documento PUDS | 🟡 2 de 8 capítulos |
@@ -116,7 +116,7 @@ Contrato REST autodocumentado en `/api/docs`.
 
 ### Pruebas
 
-`npm run pruebas` → **368 comprobaciones, 368 en verde**, desde una base recién
+`npm run pruebas` → **374 comprobaciones, 374 en verde**, desde una base recién
 cargada.
 
 | Suite | Comprobaciones |
@@ -124,7 +124,7 @@ cargada.
 | Autenticación | 43 |
 | Catálogo | 41 |
 | Inventario y transferencias | 48 |
-| Carrito, pedidos y pagos | 82 |
+| Carrito, pedidos y pagos | 88 |
 | Compras y caja | 51 |
 | Administración, roles y permisos | 40 |
 | Promociones, devoluciones y envíos | 63 |
@@ -150,11 +150,36 @@ Las pruebas encontraron tres defectos reales que ya están corregidos:
 - `trust proxy` está puesto para que detrás del proxy de Azure el limitador vea
   la IP real y no la del balanceador.
 
+### PWA (`apps/web`)
+
+Un solo sistema visual con dos registros: la **tienda** en papel hueso con
+tipografía editorial (Bodoni Moda), y **operaciones** en tinta oscura con cifras
+monoespaciadas. No es capricho: en el mostrador se trabaja horas seguidas bajo
+luz fuerte y mirando números.
+
+18 pantallas: portada, catálogo con filtros combinables, ficha con guía de
+tallas, bolsa, checkout, pedido con pago y seguimiento, ingreso, y del lado del
+personal punto de venta, inventario con ajuste, pedidos, caja y catálogo.
+
+**El modo sin conexión está verificado con el servidor apagado:**
+
+- La sesión sobrevive. El perfil se guarda en el navegador y solo se cierra
+  cuando el servidor responde que el token no vale; un fallo de red no es una
+  respuesta del servidor.
+- El catálogo vendible sale de IndexedDB, así que la búsqueda por SKU es
+  instantánea y no depende de la red.
+- Las ventas se encolan con su clave de idempotencia — generada **al encolar**,
+  no al enviar — y se sincronizan solas al volver la señal.
+- Sin red solo se ofrecen efectivo y contra entrega: un cobro con QR o tarjeta
+  necesita confirmación del banco y prometerlo sería mentir.
+- El cromo entero cambia a ocre y muestra cuántas ventas faltan enviar.
+
 ### Tamaño
 
 | | Líneas |
 |---|---|
 | API (NestJS) | 9.164 |
+| PWA (React) | 5.396 + 3.178 de CSS |
 | Contrato compartido | 1.544 |
 | Pruebas | 3.157 |
 | Esquema SQL | 942 |
@@ -167,10 +192,26 @@ Las pruebas encontraron tres defectos reales que ya están corregidos:
 docker start aurora-db          # o el docker run de la primera vez (README)
 npm install
 npm run db:cargar               # ⚠ borra todos los datos
+npm run db:demo                 # 14 productos, stock, promociones, personal
 npm run build
-npm run api
-npm run pruebas
+
+npm run api                     # API en el 8000
+npm run web                     # PWA en el 5180
+npm run pruebas                 # 374 comprobaciones
 ```
+
+Para probar el modo sin conexión: entrar al punto de venta con la API arriba
+(para que baje el catálogo), apagar la API, y seguir vendiendo.
+
+**Cuentas de demostración** — todas con la clave `Aurora2026!`:
+
+| | |
+|---|---|
+| `admin@aurora.bo` | administrador |
+| `vendedora@aurora.bo` | vendedora de Aurora Centro |
+| `reparto@aurora.bo` | repartidor |
+| `camila@ejemplo.bo` | clienta |
+| `mayorista@ejemplo.bo` | mayorista aprobado, ve precios de mayoreo |
 
 > **No usar `prisma db push` ni `prisma migrate`.** La fuente de verdad es
 > `database/schema.postgres.sql`; Prisma borraría los CHECK, el índice GIN de
@@ -182,16 +223,19 @@ npm run pruebas
 
 | Días | Trabajo |
 |---|---|
-| 14–16 sep | **PWA en React**: catálogo, carrito, checkout, punto de venta, administración, y el modo sin conexión con Workbox e IndexedDB |
-| 17–18 sep | Probador virtual, realidad aumentada, asistente de IA y reportes por chat y voz |
-| 19–20 sep | React Native y APK con EAS |
-| 21 sep | Despliegue en Azure y datos de demostración |
+| 14–16 sep | Probador virtual, realidad aumentada, asistente de IA y reportes por chat y voz |
+| 17–19 sep | React Native y APK con EAS |
+| 20–21 sep | Despliegue en Azure |
 | 22–23 sep | Capítulos 2, 4, 5 y 6, bibliografía, anexos y regenerar el entregable |
 
-El backend ya no es el riesgo. Lo que queda de código es el front (dos clientes)
-más el probador y la IA. Si hay que recortar, el orden para sacrificar es:
+Ni el backend ni el PWA son el riesgo ya. Lo que queda es el probador con RA, la
+IA, el móvil y el despliegue. Si hay que recortar, el orden para sacrificar es:
 realidad aumentada con superposición simple en vez de modelo 3D primero, después
 profundidad del asistente de IA, y **nunca el documento**.
+
+Pantallas del PWA que quedaron fuera y conviene sumar si sobra tiempo:
+administración de usuarios y roles, compras, devoluciones y envíos. La API las
+soporta enteras; les falta la interfaz.
 
 ### Documento
 
@@ -201,7 +245,7 @@ profundidad del asistente de IA, y **nunca el documento**.
 | Cap. 3 Análisis | Paquetes, diagramas de comunicación por ciclo, análisis de clases |
 | Cap. 4 Diseño | Despliegue, capas, clases, mapeo entidad-tabla, **tabla de volumen de las 54 tablas**, script, diagrama relacional |
 | Cap. 5 Implementación | **Reescribir con el stack nuevo**, más el enlace del repositorio y del APK |
-| Cap. 6 Pruebas | Formalizar las 368 comprobaciones ya automatizadas |
+| Cap. 6 Pruebas | Formalizar las 374 comprobaciones ya automatizadas |
 | Bibliografía y Anexos | Referencias y código fuente |
 
 Los diagramas de despliegue y de capas hay que rehacerlos: apuntaban a PHP en
@@ -221,7 +265,7 @@ Hostinger.
    registro de Santiago, y los nombres y registros de los demás integrantes.
    Están en blanco en `docs/documento/00-portada.html`.
 
-4. **Repositorio remoto.** Hay git local con cuatro commits. Falta crear el
+4. **Repositorio remoto.** Hay git local con seis commits. Falta crear el
    remoto y subirlo; el capítulo 5 exige el enlace y el despliegue continuo lo
    necesita.
 

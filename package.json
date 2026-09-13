@@ -14,8 +14,11 @@
     "db:generar": "node scripts/mysql-a-postgres.mjs && node scripts/seed-a-postgres.mjs",
     "db:cargar": "node scripts/cargar-bd.mjs",
     "prisma": "npm run prisma -w @aurora/api",
-    "build": "npm run contratos && npm run api:build",
-    "pruebas": "node scripts/probar-todo.mjs"
+    "build": "npm run contratos && npm run api:build && npm run web:build",
+    "pruebas": "node scripts/probar-todo.mjs",
+    "db:demo": "node scripts/datos-demo.mjs",
+    "web": "npm run dev -w @aurora/web",
+    "web:build": "npm run build -w @aurora/web"
   },
   "engines": {
     "node": ">=20"

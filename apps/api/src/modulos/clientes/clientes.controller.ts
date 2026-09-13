@@ -6,7 +6,7 @@ import type { DatosActualizarDireccion, DatosDireccion } from '@aurora/contratos
 import { zod } from '../../nucleo/validacion/zod-validacion.pipe'
 import { conMensaje, creado } from '../../nucleo/respuesta/sobre'
 import { BitacoraService } from '../../nucleo/bitacora/bitacora.service'
-import { UsuarioActual } from '../../nucleo/autenticacion/decoradores'
+import { Publico, UsuarioActual } from '../../nucleo/autenticacion/decoradores'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
 import { ClientesService } from './clientes.service'
 
@@ -15,6 +15,31 @@ import { ClientesService } from './clientes.service'
  * y el servicio resuelve el cliente a partir de la sesion, nunca de un id que
  * venga en la peticion.
  */
+/**
+ * Datos publicos que necesita la tienda: donde retirar y a que ciudades se
+ * llega. No exigen sesion porque son informacion que el local publica igual, y
+ * el checkout las pide antes de que la clienta se registre.
+ */
+@ApiTags('publico')
+@Controller('api')
+export class PublicoController {
+  constructor(private readonly clientes: ClientesService) {}
+
+  @Get('sucursales')
+  @Publico()
+  @ApiOperation({ summary: 'Sucursales que atienden publico' })
+  sucursales() {
+    return this.clientes.sucursales()
+  }
+
+  @Get('ciudades')
+  @Publico()
+  @ApiOperation({ summary: 'Ciudades con cobertura de entrega' })
+  ciudades() {
+    return this.clientes.ciudades()
+  }
+}
+
 @ApiTags('clientes')
 @Controller('api/clientes/mis-direcciones')
 export class ClientesController {

@@ -443,6 +443,53 @@ export async function probarVentas() {
   verificar('y la venta queda pagada', ventaPagada.json?.datos?.estado === 'pagado')
 
   // --------------------------------------------------------------------------
+  titulo('[P6b] Venta y cobro en una sola peticion')
+
+  // Es de lo que depende el punto de venta sin conexion: la cola encola UNA
+  // operacion, no dos encadenadas.
+  const antesJunto = await stockDe(token, varM.id)
+
+  const junto = await pedir('POST', '/api/pedidos', {
+    ip,
+    token,
+    cuerpo: {
+      canal: 'tienda',
+      tipo_entrega: 'inmediata',
+      sucursal_id: SUCURSAL_CENTRO,
+      items: [{ variante_id: varM.id, cantidad: 2 }],
+      pago: { metodo_pago_id: 1, monto: 600 },
+    },
+  })
+  verificar('la venta con pago incluido se registra', junto.estado === 201, `estado ${junto.estado}`)
+  verificar('queda pagada de una vez', junto.json?.datos?.estado === 'pagado', `estado ${junto.json?.datos?.estado}`)
+  verificar('sin saldo pendiente', junto.json?.datos?.saldo === 0)
+  verificar('y devuelve el pago', junto.json?.datos?.pago?.estado === 'confirmado')
+
+  const trasJunto = await stockDe(token, varM.id)
+  verificar(
+    'y descuenta el stock en el acto',
+    trasJunto.stock === antesJunto.stock - 2,
+    `${antesJunto.stock} -> ${trasJunto.stock}`
+  )
+
+  const montoMal = await pedir('POST', '/api/pedidos', {
+    ip,
+    token,
+    cuerpo: {
+      canal: 'tienda',
+      tipo_entrega: 'inmediata',
+      sucursal_id: SUCURSAL_CENTRO,
+      items: [{ variante_id: varM.id, cantidad: 1 }],
+      pago: { metodo_pago_id: 1, monto: 99999 },
+    },
+  })
+  verificar(
+    'un pago mayor al total se rechaza',
+    montoMal.estado === 422,
+    `estado ${montoMal.estado}`
+  )
+
+  // --------------------------------------------------------------------------
   titulo('[P7] Idempotencia: la venta offline no se duplica')
 
   const clave = `prueba-${s}-idem`

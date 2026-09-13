@@ -139,13 +139,32 @@ export class PedidosController {
     @ClaveIdempotencia() clave: string | null,
     @Req() req: Request
   ) {
-    const pedido = await this.pedidos.crear(
-      datos,
-      usuario,
-      carrito,
-      clave,
-      BitacoraService.contextoDe(req)
-    )
+    const ctx = BitacoraService.contextoDe(req)
+    const pedido = await this.pedidos.crear(datos, usuario, carrito, clave, ctx)
+
+    // El cobro del mostrador viene en la misma peticion. Se compone aqui, en el
+    // controlador, y no dentro de PedidosService, porque PagosService ya depende
+    // de PedidosService y meterlo al reves cerraria el circulo.
+    //
+    // No queda en la misma transaccion: si el pago fallara, el pedido existe con
+    // su saldo pendiente y se puede cobrar de nuevo desde el detalle. Es
+    // preferible a perder una venta ya descontada del stock.
+    if (datos.pago) {
+      const pago = await this.pagos.registrar(
+        BigInt(pedido.id),
+        datos.pago,
+        usuario,
+        // Clave derivada de la del pedido: un reintento de la venta offline
+        // tampoco duplica el cobro.
+        clave ? `${clave.slice(0, 30)}-pg` : null,
+        ctx
+      )
+      return creado(
+        { ...(await this.pedidos.detalle(BigInt(pedido.id), usuario)), pago },
+        `Venta ${pedido.numero} registrada y cobrada`
+      )
+    }
+
     return creado(pedido, `Pedido ${pedido.numero} registrado`)
   }
 

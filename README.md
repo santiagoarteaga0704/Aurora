@@ -27,7 +27,7 @@ sentencia preparada. Eso cierra la puerta a la inyección por prompt.
 |---|---|
 | Backend | NestJS 11 + TypeScript, Prisma |
 | Base de datos | PostgreSQL 16 — 54 tablas, 39 tipos enumerados, 91 claves ajenas, 2 vistas |
-| Web | React + Vite, PWA con Service Worker e IndexedDB |
+| Web | React 19 + Vite, PWA con Service Worker e IndexedDB |
 | Móvil | React Native (Expo), APK vía EAS Build |
 | Contrato | Paquete `@aurora/contratos` compartido por los tres |
 | Despliegue | Azure — App Service, Static Web Apps, Database for PostgreSQL, Blob Storage |
@@ -49,7 +49,7 @@ aurora-si2/
 │   │       ├── nucleo/       Prisma, autenticación, permisos, bitácora,
 │   │       │                 validación, respuesta única, errores
 │   │       └── modulos/      Un directorio por módulo de negocio
-│   ├── web/                  PWA en React            (pendiente)
+│   ├── web/                  PWA en React (tienda y punto de venta)
 │   └── movil/                App en React Native     (pendiente)
 ├── packages/
 │   └── contratos/            Esquemas Zod, tipos y permisos compartidos
@@ -99,15 +99,19 @@ npm run db:cargar
 npm run prisma -- generate
 npm run build
 
-# 6. Levantar la API
-npm run api
+# 6. Datos de demostracion (opcional pero recomendado)
+npm run db:demo
+
+# 7. Levantar API y PWA
+npm run api    # http://localhost:8000
+npm run web    # http://localhost:5180
 ```
 
 Verificación:
 
 ```bash
 curl http://localhost:8000/api/salud
-npm run pruebas                      # 368 comprobaciones
+npm run pruebas                      # 374 comprobaciones
 ```
 
 El contrato REST queda documentado en <http://localhost:8000/api/docs>.
@@ -122,6 +126,8 @@ después del primer ingreso.
 | `npm run db:generar` | Regenera el SQL de PostgreSQL desde los originales de MySQL |
 | `npm run db:cargar` | Vacía la base y vuelve a aplicar esquema y semilla |
 | `npm run api` | Levanta la API en modo watch |
+| `npm run web` | Levanta el PWA en el 5180 |
+| `npm run db:demo` | Carga 14 productos, stock, promociones y personal |
 | `npm run build` | Compila el contrato y la API |
 | `npm run pruebas` | Las siete suites de prueba de la API |
 

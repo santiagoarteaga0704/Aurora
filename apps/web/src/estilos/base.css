@@ -1,0 +1,499 @@
+/* ===========================================================================
+   AURORA — base del sistema visual
+   ---------------------------------------------------------------------------
+   Un solo sistema, dos registros:
+
+     .tienda        papel hueso, aire, tipografia editorial. Tiene que seducir.
+     .operaciones   tinta oscura, densidad, cifras monoespaciadas. Tiene que ser
+                    rapida, y ademas se lee mejor bajo la luz de un local.
+
+   Los tokens son los mismos; lo que cambia es la proporcion entre espacio e
+   informacion, y que fondo manda.
+   =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Archivo:ital,wght@0,300..700;1,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* --- Papel e tinta ---------------------------------------------------- */
+  --papel: #f6f2ec;
+  --papel-hondo: #ebe4d9;
+  --papel-borde: #ddd3c4;
+  --tinta: #16120f;
+  --tinta-media: #4a423b;
+  --tinta-suave: #7d7269;
+
+  /* --- Acentos ----------------------------------------------------------
+     Oxblood y laton. Es una paleta de tierra y vino, no de rosa de catalogo. */
+  --vino: #6e1a2b;
+  --vino-claro: #8e2437;
+  --vino-tenue: #f0e2e4;
+  --laton: #a8843c;
+  --laton-tenue: #f3ecdc;
+
+  /* --- Estados ----------------------------------------------------------- */
+  --salvia: #46654e;
+  --salvia-tenue: #e4ebe3;
+  --alerta: #b4472a;
+  --alerta-tenue: #f8e6df;
+  --ocre: #c98a1f;
+
+  /* --- Superficies oscuras (operaciones) --------------------------------- */
+  --noche: #16120f;
+  --noche-panel: #211b16;
+  --noche-alto: #2c241e;
+  --noche-borde: #3a302a;
+  --noche-texto: #ece5da;
+  --noche-suave: #9d9287;
+
+  /* --- Tipografia --------------------------------------------------------
+     Bodoni Moda es la tipografia de revista de moda: contraste altisimo, seria
+     y con caracter. Archivo aguanta la interfaz y las tablas. JetBrains Mono
+     para SKU, cantidades y montos, donde las cifras tienen que alinearse. */
+  --display: 'Bodoni Moda', 'Times New Roman', serif;
+  --texto: 'Archivo', 'Helvetica Neue', sans-serif;
+  --cifra: 'JetBrains Mono', 'SFMono-Regular', monospace;
+
+  /* --- Ritmo -------------------------------------------------------------- */
+  --e1: 0.25rem;
+  --e2: 0.5rem;
+  --e3: 0.75rem;
+  --e4: 1rem;
+  --e5: 1.5rem;
+  --e6: 2rem;
+  --e7: 3rem;
+  --e8: 4.5rem;
+  --e9: 7rem;
+
+  --radio: 2px;
+  --radio-suave: 10px;
+
+  --sombra-baja: 0 1px 2px rgba(22, 18, 15, 0.06);
+  --sombra: 0 8px 24px -12px rgba(22, 18, 15, 0.25);
+  --sombra-alta: 0 24px 60px -30px rgba(22, 18, 15, 0.45);
+
+  --transicion: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Sin conexion: no es un cartelito, es otro estado del sistema entero.
+   El acento pasa a ocre y el cromo lo anuncia en todas las pantallas.
+   --------------------------------------------------------------------------- */
+:root[data-conexion='offline'] {
+  --vino: #8a5a12;
+  --vino-claro: #a86f18;
+  --vino-tenue: #f6eeda;
+}
+
+/* === Reset ================================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--texto);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--tinta);
+  background: var(--papel);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* === Tipografia =========================================================== */
+
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 6vw, 5rem);
+}
+h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+h3 {
+  font-size: 1.3rem;
+}
+
+/* Rotulo en versalitas: separa secciones sin gritar. */
+.rotulo {
+  font-family: var(--texto);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.cifra {
+  font-family: var(--cifra);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* === Utilidades =========================================================== */
+
+.contenedor {
+  width: min(100% - 2.5rem, 1320px);
+  margin-inline: auto;
+}
+
+.contenedor-angosto {
+  width: min(100% - 2.5rem, 860px);
+  margin-inline: auto;
+}
+
+.pila {
+  display: flex;
+  flex-direction: column;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* === Aparicion escalonada =================================================
+   Una sola entrada bien orquestada rinde mas que veinte microanimaciones
+   sueltas. Cada hijo entra un pelo despues que el anterior.
+   ========================================================================= */
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.surge > * {
+  animation: surgir 620ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.surge > *:nth-child(1) {
+  animation-delay: 40ms;
+}
+.surge > *:nth-child(2) {
+  animation-delay: 110ms;
+}
+.surge > *:nth-child(3) {
+  animation-delay: 180ms;
+}
+.surge > *:nth-child(4) {
+  animation-delay: 250ms;
+}
+.surge > *:nth-child(5) {
+  animation-delay: 320ms;
+}
+.surge > *:nth-child(6) {
+  animation-delay: 390ms;
+}
+.surge > *:nth-child(n + 7) {
+  animation-delay: 450ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* === Controles ============================================================ */
+
+.boton {
+  --fondo: var(--tinta);
+  --frente: var(--papel);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  padding: 0.7rem 1.4rem;
+  background: var(--fondo);
+  color: var(--frente);
+  border: 1px solid var(--fondo);
+  border-radius: var(--radio);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: var(--transicion);
+  white-space: nowrap;
+}
+
+.boton:hover:not(:disabled) {
+  --fondo: var(--vino);
+  transform: translateY(-1px);
+  box-shadow: var(--sombra);
+}
+
+.boton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.boton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.boton--vino {
+  --fondo: var(--vino);
+}
+.boton--vino:hover:not(:disabled) {
+  --fondo: var(--vino-claro);
+}
+
+.boton--linea {
+  --fondo: transparent;
+  --frente: var(--tinta);
+  border-color: var(--papel-borde);
+}
+.boton--linea:hover:not(:disabled) {
+  --fondo: transparent;
+  --frente: var(--vino);
+  border-color: var(--vino);
+  box-shadow: none;
+}
+
+.boton--fantasma {
+  --fondo: transparent;
+  --frente: var(--tinta-media);
+  border-color: transparent;
+  padding: 0.4rem 0.6rem;
+  letter-spacing: 0.06em;
+}
+.boton--fantasma:hover:not(:disabled) {
+  --fondo: transparent;
+  --frente: var(--vino);
+  box-shadow: none;
+  transform: none;
+}
+
+.boton--grande {
+  padding: 1rem 2rem;
+  font-size: 0.85rem;
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+.campo {
+  display: block;
+}
+
+.campo__etiqueta {
+  display: block;
+  margin-bottom: var(--e2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.campo__control {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: transparent;
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio);
+  transition: var(--transicion);
+}
+
+.campo__control:focus {
+  outline: none;
+  border-color: var(--vino);
+  box-shadow: 0 0 0 3px var(--vino-tenue);
+}
+
+.campo__control::placeholder {
+  color: var(--tinta-suave);
+}
+
+.campo__error {
+  margin-top: var(--e2);
+  font-size: 0.78rem;
+  color: var(--alerta);
+}
+
+.campo--malo .campo__control {
+  border-color: var(--alerta);
+}
+
+/* === Avisos =============================================================== */
+
+.aviso {
+  padding: var(--e3) var(--e4);
+  border-left: 2px solid var(--tinta);
+  background: var(--papel-hondo);
+  font-size: 0.88rem;
+}
+
+.aviso--error {
+  border-color: var(--alerta);
+  background: var(--alerta-tenue);
+  color: #7d2e1a;
+}
+
+.aviso--bien {
+  border-color: var(--salvia);
+  background: var(--salvia-tenue);
+  color: #2f4a36;
+}
+
+.aviso--ojo {
+  border-color: var(--ocre);
+  background: var(--laton-tenue);
+  color: #6b4c0d;
+}
+
+/* === Marcas de estado ===================================================== */
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radio);
+  font-family: var(--texto);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.marca--neutra {
+  background: var(--papel-hondo);
+  color: var(--tinta-media);
+}
+.marca--vino {
+  background: var(--vino-tenue);
+  color: var(--vino);
+}
+.marca--bien {
+  background: var(--salvia-tenue);
+  color: var(--salvia);
+}
+.marca--ojo {
+  background: var(--laton-tenue);
+  color: #6b4c0d;
+}
+.marca--mala {
+  background: var(--alerta-tenue);
+  color: var(--alerta);
+}
+
+/* === Carga ================================================================ */
+
+@keyframes latir {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.esqueleto {
+  background: var(--papel-hondo);
+  animation: latir 1.4s ease-in-out infinite;
+  border-radius: var(--radio);
+}
+
+/* === Barra de desplazamiento ============================================== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--papel-borde);
+  border-radius: 99px;
+  border: 3px solid var(--papel);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tinta-suave);
+}
+
+::selection {
+  background: var(--vino);
+  color: var(--papel);
+}

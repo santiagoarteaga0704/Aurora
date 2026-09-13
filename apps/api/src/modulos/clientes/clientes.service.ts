@@ -19,6 +19,57 @@ export class ClientesService {
     private readonly bitacora: BitacoraService
   ) {}
 
+  /**
+   * Sucursales publicas.
+   *
+   * Es informacion que una tienda publica de todos modos, y el checkout la
+   * necesita para que la clienta elija donde retirar. Se excluyen los centros de
+   * distribucion: no atienden publico.
+   */
+  async sucursales() {
+    const filas = await this.prisma.sucursal.findMany({
+      where: { activo: true, es_virtual: false },
+      orderBy: [{ ciudad: { departamento_id: 'asc' } }, { nombre: 'asc' }],
+      select: {
+        id: true,
+        nombre: true,
+        direccion: true,
+        telefono: true,
+        horario: true,
+        ciudad: { select: { nombre: true, departamento: { select: { nombre: true } } } },
+      },
+    })
+
+    return filas.map((s) => ({
+      id: s.id,
+      nombre: s.nombre,
+      direccion: s.direccion,
+      telefono: s.telefono,
+      horario: s.horario,
+      ciudad: s.ciudad.nombre,
+      departamento: s.ciudad.departamento.nombre,
+    }))
+  }
+
+  /** Ciudades con cobertura, para el formulario de direcciones. */
+  async ciudades() {
+    const filas = await this.prisma.ciudad.findMany({
+      where: { activo: true },
+      orderBy: [{ departamento_id: 'asc' }, { nombre: 'asc' }],
+      select: {
+        id: true,
+        nombre: true,
+        departamento: { select: { nombre: true } },
+      },
+    })
+
+    return filas.map((c) => ({
+      id: c.id,
+      nombre: c.nombre,
+      departamento: c.departamento.nombre,
+    }))
+  }
+
   async misDirecciones(usuario: UsuarioAutenticado): Promise<Direccion[]> {
     const clienteId = await this.clienteDe(usuario)
 
