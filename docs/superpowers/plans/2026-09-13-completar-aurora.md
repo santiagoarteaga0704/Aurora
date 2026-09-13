@@ -458,13 +458,60 @@ tiene sentido en el celular: punto de venta con lector de código de barras,
 consulta de stock, y la hoja de ruta del repartidor. Rehacer la tienda en móvil
 cuando el PWA ya es instalable sería duplicar trabajo.
 
-- [ ] **8.1** `apps/movil` con Expo SDK, TypeScript y `@aurora/contratos`.
-- [ ] **8.2** Sesión y cliente de API compartiendo el contrato.
-- [ ] **8.3** Punto de venta con `expo-camera` para escanear códigos de barras.
-- [ ] **8.4** Consulta de stock por sucursal.
-- [ ] **8.5** Hoja de ruta del repartidor con marcar entregado.
-- [ ] **8.6** Cola sin conexión con `expo-sqlite`, misma idempotencia.
+- [x] **8.1** `apps/movil` con Expo SDK, TypeScript y `@aurora/contratos`.
+- [x] **8.2** Sesión y cliente de API compartiendo el contrato.
+- [x] **8.3** Punto de venta con `expo-camera` para escanear códigos de barras.
+- [x] **8.4** Consulta de stock por sucursal.
+- [x] **8.5** Hoja de ruta del repartidor con marcar entregado.
+- [x] **8.6** Cola sin conexión con `expo-sqlite`, misma idempotencia.
 - [ ] **8.7** **[B2]** `eas build -p android --profile preview` para el `.apk`.
+
+---
+
+**Hecho, salvo el APK.** `tsc --noEmit` limpio, `expo-doctor` 21/21, y
+`expo export --platform android` genera el bundle.
+
+**Lo que NO está verificado, y conviene decirlo antes que lo pregunten:** la app
+nunca se abrió en un teléfono. No hay dispositivo ni emulador de Android en esta
+máquina. Que compile y empaquete no es lo mismo que que funcione. Falta abrirla
+con Expo Go y cobrar una venta de verdad.
+
+Decisiones que conviene tener a mano:
+
+- **Es para el personal, no una segunda tienda.** El PWA ya es instalable;
+  rehacer la vidriera en React Native sería hacer dos veces lo mismo. Las tres
+  pantallas son las que se usan de pie: cobrar leyendo el código de barras,
+  mirar stock, repartir.
+
+- **Comparte contrato, idempotencia y endpoint de sincronización con el PWA.**
+  Una venta hecha en el teléfono deja constancia en `sync_operacion` y se puede
+  revisar desde la caja; no queda encerrada en el aparato.
+
+- **Lo que no comparte es dónde guarda.** Token en `expo-secure-store` (llavero
+  cifrado) y no en un archivo, porque un teléfono de mostrador se pierde; cola
+  en SQLite y no en IndexedDB.
+
+Cuatro problemas de dependencias que salieron y valía la pena arreglar de raíz:
+
+1. **Dos copias de React y dos de React Native.** La causa clásica del «Invalid
+   hook call» en monorepos. Al principio lo tapé forzando la resolución en
+   `metro.config.js`; después se arregló donde correspondía, con un override en
+   la raíz que deja una sola versión, y la configuración de Metro volvió a la
+   por defecto.
+
+2. **React Native 0.87 rompía el empaquetador.** El SDK 57 declara 0.86.3 en
+   `bundledNativeModules.json`; poner una más nueva «porque existe» hace que
+   `@expo/metro-config` busque archivos que ya no están.
+
+3. **13 vulnerabilidades moderadas** entraron con el andamiaje de Expo. Son de
+   herramientas de compilación, no del APK, y se cerraron igual con overrides:
+   un aviso que se deja pasar «porque es de desarrollo» es como se normaliza no
+   mirarlos. **0 vulnerabilidades.**
+
+4. **`expo-doctor` marcaba cuatro cosas** —`newArchEnabled` obsoleto, el metro
+   config peleado con el suyo, `react-native-screens` duplicado y TypeScript
+   desalineado—. Las cuatro arregladas; TypeScript 6 solo en la app móvil,
+   porque mover la API y la web es una migración aparte que nadie pidió.
 
 ---
 

@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "AURORA Operaciones",
+    "slug": "aurora-operaciones",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "aurora",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "bo.edu.uagrm.aurora",
+      "adaptiveIcon": {
+        "backgroundColor": "#16120F"
+      },
+      "permissions": ["android.permission.CAMERA"]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "AURORA usa la camara para leer los codigos de barras de las prendas."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://10.0.2.2:8000"
+    }
+  }
+}
