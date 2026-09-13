@@ -1,0 +1,26 @@
+{
+  "name": "aurora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AURORA - Comercio electronico multisucursal de ropa femenina (SI2, Parcial 1)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "contratos": "npm run build -w @aurora/contratos",
+    "api": "npm run dev -w @aurora/api",
+    "api:build": "npm run build -w @aurora/api",
+    "db:generar": "node scripts/mysql-a-postgres.mjs && node scripts/seed-a-postgres.mjs",
+    "db:cargar": "node scripts/cargar-bd.mjs",
+    "prisma": "npm run prisma -w @aurora/api",
+    "build": "npm run contratos && npm run api:build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "overrides": {
+    "multer": "^2.3.0",
+    "deepmerge-ts": "^8.0.0"
+  }
+}

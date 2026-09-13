@@ -1,0 +1,84 @@
+@startuml cu-ciclo1
+!pragma layout smetana
+left to right direction
+skinparam actorStyle awesome
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F5F7FA
+  BorderColor #2C3E50
+  FontSize 12
+}
+skinparam actor {
+  BorderColor #2C3E50
+}
+title Diagrama de Casos de Uso — Ciclo 1: Seguridad, organización y catálogo
+
+actor "Usuario del Sistema" as USR
+actor "Administrador" as ADM
+actor "Gerente de Sucursal" as GER
+actor "Visitante" as VIS
+
+USR <|-- ADM
+USR <|-- GER
+
+rectangle "AURORA — Ciclo 1" {
+
+  package "Seguridad" {
+    usecase "CU1\nGestionar Usuario" as CU1
+    usecase "CU2\nGestionar Rol" as CU2
+    usecase "CU3\nGestionar Permiso" as CU3
+    usecase "CU4\nIniciar Sesión" as CU4
+    usecase "CU5\nCerrar Sesión" as CU5
+    usecase "CU6\nRegistrar Cliente" as CU6
+    usecase "CU13\nConsultar Bitácora" as CU13
+  }
+
+  package "Organización" {
+    usecase "CU7\nGestionar Sucursal" as CU7
+    usecase "CU8\nGestionar Almacén" as CU8
+  }
+
+  package "Catálogo" {
+    usecase "CU9\nGestionar Categoría" as CU9
+    usecase "CU10\nGestionar Marca,\nTalla y Color" as CU10
+    usecase "CU11\nGestionar Producto" as CU11
+    usecase "CU12\nGestionar Variante\nde Producto" as CU12
+  }
+}
+
+ADM --> CU1
+ADM --> CU2
+ADM --> CU3
+ADM --> CU7
+ADM --> CU8
+ADM --> CU9
+ADM --> CU10
+ADM --> CU11
+ADM --> CU12
+ADM --> CU13
+
+GER --> CU11
+GER --> CU12
+GER --> CU13
+
+USR --> CU4
+USR --> CU5
+
+VIS --> CU6
+
+CU1 ..> CU2 : <<include>>
+CU2 ..> CU3 : <<include>>
+CU8 ..> CU7 : <<include>>
+CU11 ..> CU9 : <<include>>
+CU11 ..> CU10 : <<include>>
+CU12 ..> CU11 : <<include>>
+CU6 ..> CU4 : <<include>>
+
+note bottom of CU13
+  Registra toda operación
+  sensible del sistema
+end note
+
+@enduml

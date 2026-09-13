@@ -1,0 +1,44 @@
+# Dependencias
+node_modules/
+
+# Configuracion local con credenciales
+.env
+.env.local
+apps/*/.env
+apps/*/.env.local
+
+# Compilados
+dist/
+build/
+*.tsbuildinfo
+apps/api/dist/
+packages/*/dist/
+
+# Prisma: el cliente se genera en cada instalacion
+node_modules/.prisma/
+
+# Salida del generador de documentos (se regenera con build-documento.ps1)
+entregable/
+
+# Herramienta descargada (22 MB, se vuelve a bajar si falta)
+scripts/plantuml.jar
+
+# React Native / Expo
+apps/movil/.expo/
+apps/movil/android/
+apps/movil/ios/
+*.apk
+*.aab
+
+# PWA: salida de Vite y del Service Worker
+apps/web/dist/
+apps/web/dev-dist/
+
+# Registros
+*.log
+npm-debug.log*
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

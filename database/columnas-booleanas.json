@@ -1,0 +1,88 @@
+{
+  "departamento": [
+    "activo"
+  ],
+  "ciudad": [
+    "activo"
+  ],
+  "sucursal": [
+    "es_virtual",
+    "activo"
+  ],
+  "almacen": [
+    "es_principal",
+    "activo"
+  ],
+  "rol": [
+    "es_sistema",
+    "activo"
+  ],
+  "usuario": [
+    "email_verificado",
+    "activo"
+  ],
+  "sesion": [
+    "revocado"
+  ],
+  "cliente": [
+    "mayorista_aprobado"
+  ],
+  "direccion_cliente": [
+    "es_principal",
+    "activo"
+  ],
+  "categoria": [
+    "activo"
+  ],
+  "marca": [
+    "activo"
+  ],
+  "producto": [
+    "destacado",
+    "activo"
+  ],
+  "producto_imagen": [
+    "es_principal"
+  ],
+  "producto_prenda_3d": [
+    "activo"
+  ],
+  "variante": [
+    "activo"
+  ],
+  "proveedor": [
+    "activo"
+  ],
+  "campania": [
+    "activo"
+  ],
+  "promocion": [
+    "activo"
+  ],
+  "pedido": [
+    "creado_offline"
+  ],
+  "metodo_pago": [
+    "requiere_comprobante",
+    "disponible_offline",
+    "activo"
+  ],
+  "devolucion_detalle": [
+    "reingresa_stock"
+  ],
+  "prueba_virtual": [
+    "convirtio_en_compra"
+  ],
+  "resena": [
+    "aprobado"
+  ],
+  "plantilla_reporte": [
+    "activo"
+  ],
+  "consulta_reporte": [
+    "exito"
+  ],
+  "notificacion": [
+    "leida"
+  ]
+}

@@ -1,0 +1,103 @@
+@startuml cu-ciclo2
+!pragma layout smetana
+left to right direction
+skinparam actorStyle awesome
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F5F7FA
+  BorderColor #2C3E50
+  FontSize 12
+}
+title Diagrama de Casos de Uso — Ciclo 2: Inventario, ventas y pagos
+
+actor "Cliente" as CLI
+actor "Cliente Minorista" as CMI
+actor "Cliente Mayorista" as CMA
+actor "Visitante" as VIS
+actor "Vendedor" as VEN
+actor "Almacenero" as ALM
+actor "Gerente de Sucursal" as GER
+actor "Repartidor" as REP
+actor "Administrador" as ADM
+actor "Pasarela de Pago" as PAG
+
+CLI <|-- CMI
+CLI <|-- CMA
+
+rectangle "AURORA — Ciclo 2" {
+
+  package "Inventario" {
+    usecase "CU14\nGestionar Inventario" as CU14
+    usecase "CU15\nGestionar Transferencia\nentre Almacenes" as CU15
+    usecase "CU16\nGestionar Proveedor" as CU16
+    usecase "CU17\nGestionar Compra\na Proveedor" as CU17
+  }
+
+  package "Ventas" {
+    usecase "CU18\nBuscar en el Catálogo" as CU18
+    usecase "CU19\nGestionar Carrito\nde Compras" as CU19
+    usecase "CU20\nRegistrar Venta\nen Línea" as CU20
+    usecase "CU21\nRegistrar Venta\nen Tienda" as CU21
+    usecase "CU25\nGestionar Devolución" as CU25
+    usecase "CU26\nGestionar Campaña\ny Promoción" as CU26
+  }
+
+  package "Pagos y entregas" {
+    usecase "CU22\nGestionar Pago" as CU22
+    usecase "CU23\nGestionar Caja" as CU23
+    usecase "CU24\nGestionar Envío" as CU24
+  }
+}
+
+VIS --> CU18
+CLI --> CU18
+CLI --> CU19
+CLI --> CU20
+CLI --> CU25
+
+VEN --> CU18
+VEN --> CU21
+VEN --> CU23
+VEN --> CU24
+
+ALM --> CU14
+ALM --> CU15
+ALM --> CU17
+
+GER --> CU14
+GER --> CU15
+GER --> CU17
+GER --> CU21
+GER --> CU23
+GER --> CU24
+GER --> CU25
+GER --> CU26
+
+REP --> CU24
+ADM --> CU16
+ADM --> CU26
+
+CU22 <-- PAG
+
+CU19 ..> CU18 : <<include>>
+CU20 ..> CU19 : <<include>>
+CU20 ..> CU22 : <<include>>
+CU21 ..> CU22 : <<include>>
+CU21 ..> CU23 : <<include>>
+CU20 ..> CU14 : <<include>>
+CU21 ..> CU14 : <<include>>
+CU24 ..> CU20 : <<include>>
+CU25 ..> CU14 : <<include>>
+CU15 ..> CU14 : <<include>>
+CU17 ..> CU16 : <<include>>
+CU17 ..> CU14 : <<include>>
+CU26 ..> CU19 : <<extend>>
+
+note bottom of CU21
+  Opera sin conexión:
+  ver CU35 en el Ciclo 3
+end note
+
+@enduml

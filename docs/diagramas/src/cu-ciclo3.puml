@@ -1,0 +1,104 @@
+@startuml cu-ciclo3
+!pragma layout smetana
+left to right direction
+skinparam actorStyle awesome
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F5F7FA
+  BorderColor #2C3E50
+  FontSize 12
+}
+title Diagrama de Casos de Uso — Ciclo 3: Probador digital, IA y operación sin conexión
+
+actor "Cliente" as CLI
+actor "Cliente Minorista" as CMI
+actor "Cliente Mayorista" as CMA
+actor "Visitante" as VIS
+actor "Vendedor" as VEN
+actor "Almacenero" as ALM
+actor "Gerente de Sucursal" as GER
+actor "Administrador" as ADM
+actor "Asistente de IA" as IA
+
+CLI <|-- CMI
+CLI <|-- CMA
+
+rectangle "AURORA — Ciclo 3" {
+
+  package "Probador digital" {
+    usecase "CU27\nGestionar Medidas\nCorporales" as CU27
+    usecase "CU28\nProbar Prenda con\nAvatar Digital" as CU28
+    usecase "CU29\nProbar Prenda con\nRealidad Aumentada" as CU29
+    usecase "CU30\nRecomendar Talla" as CU30
+    usecase "CU34\nGestionar Reseña" as CU34
+  }
+
+  package "Inteligencia artificial" {
+    usecase "CU31\nConsultar Asistente\nde Compra" as CU31
+    usecase "CU32\nGenerar Reporte\nBajo Demanda" as CU32
+  }
+
+  package "Analítica y operación" {
+    usecase "CU33\nGestionar Reportes" as CU33
+    usecase "CU35\nSincronizar Operaciones\nsin Conexión" as CU35
+    usecase "CU36\nGestionar Notificaciones" as CU36
+  }
+}
+
+VIS --> CU27
+VIS --> CU28
+VIS --> CU29
+VIS --> CU31
+
+CLI --> CU27
+CLI --> CU28
+CLI --> CU29
+CLI --> CU31
+CLI --> CU34
+CLI --> CU36
+
+GER --> CU32
+GER --> CU33
+GER --> CU34
+GER --> CU36
+ADM --> CU32
+ADM --> CU33
+ADM --> CU36
+
+VEN --> CU35
+ALM --> CU35
+VEN --> CU36
+ALM --> CU36
+
+IA --> CU31
+IA --> CU32
+IA --> CU30
+
+CU28 ..> CU27 : <<include>>
+CU28 ..> CU30 : <<include>>
+CU29 ..> CU28 : <<extend>>
+CU30 ..> CU27 : <<include>>
+CU34 ..> CU30 : <<extend>>
+CU32 ..> CU33 : <<include>>
+
+note bottom of CU29
+  Extiende el probador
+  cuando el dispositivo
+  dispone de cámara
+end note
+
+note bottom of CU32
+  El modelo selecciona una
+  plantilla autorizada y sus
+  parámetros; nunca redacta SQL
+end note
+
+note bottom of CU34
+  El ajuste real informado
+  corrige la recomendación
+  de talla de CU30
+end note
+
+@enduml

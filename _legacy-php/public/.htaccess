@@ -1,0 +1,22 @@
+# Todo el trafico que no sea un archivo real va al front controller.
+RewriteEngine On
+
+# No reescribir archivos ni directorios existentes (imagenes subidas, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Algunos servidores compartidos no propagan el encabezado Authorization a PHP.
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Nunca servir archivos sensibles aunque queden dentro del docroot.
+<FilesMatch "\.(env|sql|log|md)$">
+    Require all denied
+</FilesMatch>
+
+php_flag display_errors off
