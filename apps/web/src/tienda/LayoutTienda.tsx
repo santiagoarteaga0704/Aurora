@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { BarraConexion } from '../componentes/BarraConexion'
 import { useSesion } from '../sesion/SesionContexto'
+import { Campanita } from '../componentes/Campanita'
 import { useCarrito } from './CarritoContexto'
 import { clases } from '../util/formato'
 
@@ -71,6 +72,8 @@ export function LayoutTienda() {
           </nav>
 
           <div className="cabecera__acciones">
+            <Campanita />
+
             {perfil ? (
               <div className="cabecera__cuenta">
                 <Link to="/mis-pedidos" className="cabecera__enlace">

@@ -11,6 +11,8 @@ import { salto } from '@aurora/contratos'
 import { PrismaService } from '../../nucleo/prisma/prisma.service'
 import { ExcepcionNegocio } from '../../nucleo/errores/excepcion-negocio'
 import { BitacoraService, type ContextoPeticion } from '../../nucleo/bitacora/bitacora.service'
+import { PERMISOS } from '@aurora/contratos'
+import { NotificacionesService } from '../../nucleo/notificaciones/notificaciones.service'
 import { PermisosService } from '../../nucleo/autenticacion/permisos.service'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
 import { StockService } from './stock.service'
@@ -21,6 +23,7 @@ export class InventarioService {
     private readonly prisma: PrismaService,
     private readonly stock: StockService,
     private readonly permisos: PermisosService,
+    private readonly notificaciones: NotificacionesService,
     private readonly bitacora: BitacoraService
   ) {}
 
@@ -266,7 +269,48 @@ export class InventarioService {
         stock_previo: stockPrevio,
         stock_actual: datos.stock_contado,
         diferencia,
+        minimo: datos.stock_minimo,
       }
+    })
+      .then(async (resultado) => {
+        await this.avisarSiQuedoBajo(resultado, almacen)
+        return resultado
+      })
+  }
+
+  /**
+   * Avisa a quien pueda reponer que una prenda quedo bajo el minimo.
+   *
+   * Va despues de la transaccion y no dentro: si el aviso fallara dentro, se
+   * desharia un conteo de inventario que ya es correcto. El stock es el dato
+   * real; el aviso es una cortesia.
+   *
+   * Se avisa a quien tenga el permiso de ajustar inventario, resuelto por
+   * permiso y no por rol: el dia que alguien cree un rol nuevo que pueda
+   * reponer, se entera sin tocar este codigo.
+   */
+  private async avisarSiQuedoBajo(
+    resultado: { variante_id: number; sku: string; stock_actual: number; minimo?: number },
+    almacen: { nombre: string; sucursal_id: number }
+  ): Promise<void> {
+    const inventario = await this.prisma.inventario.findFirst({
+      where: { variante_id: resultado.variante_id },
+      select: { stock_minimo: true },
+    })
+
+    const minimo = resultado.minimo ?? inventario?.stock_minimo ?? 0
+    if (minimo <= 0 || resultado.stock_actual > minimo) return
+
+    const destinatarios = await this.notificaciones.quienPuede(
+      PERMISOS.INVENTARIO_AJUSTAR,
+      almacen.sucursal_id
+    )
+
+    await this.notificaciones.crearVarios(destinatarios, {
+      tipo: 'stock',
+      titulo: 'Stock bajo el minimo',
+      mensaje: `${resultado.sku} quedo en ${resultado.stock_actual} en ${almacen.nombre} (minimo ${minimo}).`,
+      url: '/op/inventario',
     })
   }
 

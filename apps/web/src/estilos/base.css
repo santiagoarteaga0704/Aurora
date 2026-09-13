@@ -497,3 +497,212 @@ h3 {
   background: var(--vino);
   color: var(--papel);
 }
+
+/* === Campanita de avisos ==================================================
+   Vive en base.css y no en tienda.css ni operaciones.css porque es el mismo
+   componente en las dos mitades. Los colores salen de variables que cada
+   mitad redefine, asi que se ve clara sobre papel y oscura sobre noche sin
+   escribir dos veces la misma regla.
+   ========================================================================= */
+
+.campanita {
+  position: relative;
+}
+
+.campanita__boton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: inherit;
+  transition: var(--transicion);
+}
+
+.campanita__boton:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.campanita__icono {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes campanear {
+  0%, 88%, 100% { transform: rotate(0); }
+  90% { transform: rotate(-11deg); }
+  94% { transform: rotate(9deg); }
+  97% { transform: rotate(-4deg); }
+}
+
+.campanita__boton--con-avisos .campanita__icono {
+  animation: campanear 6s ease-in-out infinite;
+  transform-origin: 50% 15%;
+}
+
+.campanita__punto {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  background: var(--vino);
+  color: #fff;
+  border-radius: 99px;
+  font-family: var(--cifra);
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+/* --- Panel --- */
+
+@keyframes desplegar-avisos {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.campanita__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(340px, calc(100vw - 2rem));
+  max-height: min(420px, 60vh);
+  overflow-y: auto;
+  background: var(--papel);
+  border: 1px solid var(--papel-borde);
+  border-radius: var(--radio-suave);
+  box-shadow: var(--sombra-alta);
+  animation: desplegar-avisos 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* En operaciones el panel sale hacia arriba: la campanita esta al pie. */
+.operaciones .campanita__panel {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  background: var(--noche-panel);
+  border-color: var(--noche-borde);
+  color: var(--noche-texto);
+}
+
+.campanita__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+  padding: var(--e3) var(--e4);
+  border-bottom: 1px solid var(--papel-borde);
+}
+
+.operaciones .campanita__cabecera {
+  border-bottom-color: var(--noche-borde);
+}
+
+.campanita__marcar {
+  font-size: 0.74rem;
+  color: var(--vino);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.operaciones .campanita__marcar {
+  color: var(--laton);
+}
+
+.campanita__estado {
+  padding: var(--e5) var(--e4);
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--tinta-suave);
+}
+
+.operaciones .campanita__estado {
+  color: var(--noche-suave);
+}
+
+.campanita__lista {
+  list-style: none;
+}
+
+.aviso-fila {
+  display: flex;
+  gap: var(--e3);
+  width: 100%;
+  padding: var(--e3) var(--e4);
+  text-align: left;
+  border-bottom: 1px solid var(--papel-borde);
+  transition: var(--transicion);
+}
+
+.operaciones .aviso-fila {
+  border-bottom-color: var(--noche-borde);
+}
+
+.aviso-fila:hover {
+  background: var(--papel-hondo);
+}
+
+.operaciones .aviso-fila:hover {
+  background: var(--noche-alto);
+}
+
+/* La barra al costado y no un punto suelto: se ve de reojo cuales faltan leer
+   sin tener que recorrer la lista buscando marcas. */
+.aviso-fila--nuevo {
+  box-shadow: inset 2px 0 0 var(--laton);
+}
+
+.aviso-fila__icono {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.aviso-fila__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.aviso-fila__titulo {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.operaciones .aviso-fila__titulo {
+  color: var(--noche-texto);
+}
+
+.aviso-fila__mensaje {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--tinta-media);
+}
+
+.operaciones .aviso-fila__mensaje {
+  color: var(--noche-suave);
+}
+
+.aviso-fila__fecha {
+  margin-top: 2px;
+  font-family: var(--cifra);
+  font-size: 0.68rem;
+  color: var(--tinta-suave);
+}
+
+.panel-lateral__estado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e3);
+}

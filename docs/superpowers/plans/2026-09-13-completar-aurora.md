@@ -302,13 +302,41 @@ cualquiera pudiera declarar una talla que no compró.
 
 **Tabla:** `notificacion`.
 
-- [ ] **5.1** `NotificacionesService.crear(usuarioId, tipo, titulo, mensaje, url)`
+- [x] **5.1** `NotificacionesService.crear(usuarioId, tipo, titulo, mensaje, url)`
       y el listado con marcar-como-leída.
-- [ ] **5.2** Engancharlo donde ya hay hechos que avisar: cambio de estado de
+- [x] **5.2** Engancharlo donde ya hay hechos que avisar: cambio de estado de
       pedido, pago confirmado o rechazado, devolución resuelta, stock bajo
       mínimo al ajustar.
-- [ ] **5.3** Campanita en el cromo de las dos mitades del PWA.
-- [ ] **5.4** Suite + commit.
+- [x] **5.3** Campanita en el cromo de las dos mitades del PWA.
+- [x] **5.4** Suite + commit.
+
+**Hecho.** 21 pruebas propias, 560 en total. Captura en `docs/capturas/campanita.png`.
+
+Tres cosas que conviene tener a mano:
+
+- **El servicio vive en `nucleo/`, no en `modulos/`.** Casi todos los módulos
+  necesitan avisar algo; como módulo de negocio habría que importarlo en ventas,
+  posventa e inventario, armando un nudo de dependencias por algo que es
+  infraestructura. Es la misma razón por la que la bitácora está donde está.
+
+- **`crear` nunca lanza.** Se llama desde dentro de operaciones que ya salieron
+  bien —el pedido se despachó, el pago se confirmó— y fallar ahí solo puede
+  significar que una operación terminada se reporte como fallida porque no se
+  pudo avisar de ella. Hay una prueba que manda un nombre de producto que no
+  entra en la columna del aviso y comprueba que el ajuste de inventario se
+  guarda igual.
+
+- **Los destinatarios del aviso de stock se resuelven por permiso, no por rol.**
+  El día que alguien cree un rol nuevo que pueda reponer, se entera sin que haya
+  que tocar este código.
+
+Un hueco que apareció al mirar la captura: el aviso de pago estaba solo en
+`resolver`, así que quien pagaba con tarjeta en línea —el único caso que se
+confirma sin que nadie lo mire— era justamente el único que no se enteraba. El
+aviso ahora depende de que el pago quedó confirmado, no del camino por el que
+llegó a estarlo.
+
+---
 
 ## Tarea 6: Sincronización por lote
 

@@ -26,6 +26,7 @@ import { ReportesModule } from './modulos/reportes/reportes.module'
 import { AsistenteModule } from './modulos/asistente/asistente.module'
 import { ProbadorModule } from './modulos/probador/probador.module'
 import { ResenasModule } from './modulos/resenas/resenas.module'
+import { NotificacionesModule } from './nucleo/notificaciones/notificaciones.module'
 
 /**
  * Raiz de la API.
@@ -65,6 +66,7 @@ import { ResenasModule } from './modulos/resenas/resenas.module'
     AsistenteModule,
     ProbadorModule,
     ResenasModule,
+    NotificacionesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

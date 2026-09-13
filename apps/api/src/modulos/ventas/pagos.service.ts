@@ -4,6 +4,7 @@ import { PERMISOS } from '@aurora/contratos'
 import { PrismaService } from '../../nucleo/prisma/prisma.service'
 import { ExcepcionNegocio } from '../../nucleo/errores/excepcion-negocio'
 import { BitacoraService, type ContextoPeticion } from '../../nucleo/bitacora/bitacora.service'
+import { NotificacionesService } from '../../nucleo/notificaciones/notificaciones.service'
 import { PermisosService } from '../../nucleo/autenticacion/permisos.service'
 import { PreciosService } from '../catalogo/precios.service'
 import { CajaService } from '../caja/caja.service'
@@ -34,6 +35,7 @@ export class PagosService {
     private readonly pedidos: PedidosService,
     private readonly caja: CajaService,
     private readonly permisos: PermisosService,
+    private readonly notificaciones: NotificacionesService,
     private readonly bitacora: BitacoraService
   ) {}
 
@@ -153,6 +155,35 @@ export class PagosService {
       return pago.id
     })
 
+    /**
+     * Un pago que se confirma solo tambien se avisa.
+     *
+     * Antes el aviso estaba unicamente en `resolver`, asi que quien pagaba con
+     * tarjeta en linea —el caso que se confirma sin que nadie lo mire— era
+     * justamente el unico que no se enteraba de que su pago entro. El aviso
+     * tiene que depender de que el pago quedo confirmado, no de por cual de los
+     * dos caminos llego a estarlo.
+     */
+    // `pedido` viene del contrato, que trae el nombre del cliente y no su id:
+    // para avisarle hace falta el id, y se pregunta aparte.
+    const dueno =
+      seConfirmaSolo && pedido.canal !== 'tienda'
+        ? await this.prisma.pedido.findUnique({
+            where: { id: pedidoId },
+            select: { cliente_id: true },
+          })
+        : null
+
+    if (dueno?.cliente_id != null) {
+      await this.notificaciones.crear({
+        usuarioId: dueno.cliente_id,
+        tipo: 'pedido',
+        titulo: 'Recibimos tu pago',
+        mensaje: `Confirmamos ${datos.monto} BOB del pedido ${pedido.numero}.`,
+        url: `/pedido/${pedidoId}`,
+      })
+    }
+
     await this.bitacora.registrar(ctx, {
       accion: 'crear',
       modulo: 'pago',
@@ -180,7 +211,15 @@ export class PagosService {
       include: {
         // tipo y canal hacen falta para decidir si el cobro entra a la caja.
         metodo_pago: { select: { nombre: true, tipo: true } },
-        pedido: { select: { id: true, numero: true, sucursal_id: true, canal: true } },
+        pedido: {
+          select: {
+            id: true,
+            numero: true,
+            sucursal_id: true,
+            canal: true,
+            cliente_id: true,
+          },
+        },
       },
     })
     if (!pago) throw ExcepcionNegocio.noEncontrado('Ese pago no existe')
@@ -217,6 +256,30 @@ export class PagosService {
         await this.actualizarEstadoDelPedido(tx, pago.pedido_id, usuario.id)
       }
     })
+
+    /**
+     * Avisarle a la clienta como quedo su pago.
+     *
+     * Es el aviso que mas hace falta de todos: un pago rechazado que nadie
+     * comunica se descubre cuando la clienta pasa a buscar el pedido y no se lo
+     * dan. Con el rechazo va el motivo, porque "rechazado" a secas no le dice
+     * que tiene que hacer.
+     *
+     * El de mostrador no se avisa: el cobro pasa con la clienta enfrente.
+     */
+    if (pago.pedido.cliente_id !== null && pago.pedido.canal !== 'tienda') {
+      await this.notificaciones.crear({
+        usuarioId: pago.pedido.cliente_id,
+        tipo: 'pedido',
+        titulo: datos.aprobado ? 'Recibimos tu pago' : 'No pudimos confirmar tu pago',
+        mensaje: datos.aprobado
+          ? `Confirmamos ${aNumero(pago.monto)} BOB del pedido ${pago.pedido.numero}.`
+          : `El pago del pedido ${pago.pedido.numero} fue rechazado${
+              datos.motivo ? `: ${datos.motivo}` : ''
+            }.`,
+        url: `/pedido/${pago.pedido.id}`,
+      })
+    }
 
     await this.bitacora.registrar(ctx, {
       accion: datos.aprobado ? 'confirmar' : 'rechazar',

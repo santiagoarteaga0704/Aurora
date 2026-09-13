@@ -22,6 +22,7 @@ import { probarReportes } from './probar-reportes.mjs'
 import { probarAsistente } from './probar-asistente.mjs'
 import { probarProbador } from './probar-probador.mjs'
 import { probarResenas } from './probar-resenas.mjs'
+import { probarNotificaciones } from './probar-notificaciones.mjs'
 
 const suites = [
   ['Autenticacion', probarAuth],
@@ -35,6 +36,7 @@ const suites = [
   ['Asistente de IA', probarAsistente],
   ['Probador virtual', probarProbador],
   ['Resenias', probarResenas],
+  ['Notificaciones', probarNotificaciones],
 ]
 
 async function principal() {

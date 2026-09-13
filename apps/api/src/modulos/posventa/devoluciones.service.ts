@@ -11,6 +11,7 @@ import { PERMISOS, salto } from '@aurora/contratos'
 import { PrismaService } from '../../nucleo/prisma/prisma.service'
 import { ExcepcionNegocio } from '../../nucleo/errores/excepcion-negocio'
 import { BitacoraService, type ContextoPeticion } from '../../nucleo/bitacora/bitacora.service'
+import { NotificacionesService } from '../../nucleo/notificaciones/notificaciones.service'
 import { PermisosService } from '../../nucleo/autenticacion/permisos.service'
 import { PreciosService } from '../catalogo/precios.service'
 import { StockService } from '../inventario/stock.service'
@@ -37,6 +38,7 @@ export class DevolucionesService {
     private readonly prisma: PrismaService,
     private readonly stock: StockService,
     private readonly permisos: PermisosService,
+    private readonly notificaciones: NotificacionesService,
     private readonly bitacora: BitacoraService
   ) {}
 
@@ -175,6 +177,27 @@ export class DevolucionesService {
         cerrado_en: datos.aprobada ? null : new Date(),
       },
     })
+
+    /**
+     * Avisarle a la clienta como se resolvio.
+     *
+     * Una devolucion rechazada que nadie comunica deja a alguien esperando un
+     * reembolso que no va a llegar, y el motivo va en el aviso porque
+     * "rechazada" a secas no le dice que puede hacer al respecto.
+     */
+    if (devolucion.cliente_id !== null) {
+      await this.notificaciones.crear({
+        usuarioId: devolucion.cliente_id,
+        tipo: 'devolucion',
+        titulo: datos.aprobada ? 'Aprobamos tu devolucion' : 'No pudimos aprobar tu devolucion',
+        mensaje: datos.aprobada
+          ? `La devolucion ${devolucion.numero} fue aprobada. Podes traer la prenda.`
+          : `La devolucion ${devolucion.numero} fue rechazada${
+              datos.comentario ? `: ${datos.comentario}` : ''
+            }.`,
+        url: '/mis-pedidos',
+      })
+    }
 
     await this.bitacora.registrar(ctx, {
       accion: datos.aprobada ? 'aprobar' : 'rechazar',

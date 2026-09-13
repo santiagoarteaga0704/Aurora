@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { PERMISOS } from '@aurora/contratos'
 import { BarraConexion } from '../componentes/BarraConexion'
+import { Campanita } from '../componentes/Campanita'
 import { useSesion } from '../sesion/SesionContexto'
 import { useConexion } from '../offline/ConexionContexto'
 import { clases } from '../util/formato'
@@ -54,9 +55,12 @@ export function LayoutOperaciones() {
         </nav>
 
         <div className="panel-lateral__pie">
-          <div className={clases('pulso-red', !enLinea && 'pulso-red--corte')}>
-            <span className="pulso-red__punto" aria-hidden />
-            {enLinea ? 'En linea' : 'Sin conexion'}
+          <div className="panel-lateral__estado">
+            <div className={clases('pulso-red', !enLinea && 'pulso-red--corte')}>
+              <span className="pulso-red__punto" aria-hidden />
+              {enLinea ? 'En linea' : 'Sin conexion'}
+            </div>
+            <Campanita />
           </div>
           <p className="panel-lateral__usuario">
             {perfil?.nombre} {perfil?.apellido}

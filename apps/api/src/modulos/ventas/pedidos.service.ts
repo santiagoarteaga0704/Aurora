@@ -18,6 +18,7 @@ import { PromocionesService } from '../promociones/promociones.service'
 import { CarritoService } from './carrito.service'
 import { aNumero } from '../../nucleo/util/decimal'
 import { PruebasService } from '../probador/pruebas.service'
+import { NotificacionesService } from '../../nucleo/notificaciones/notificaciones.service'
 import type { UsuarioAutenticado } from '../../nucleo/autenticacion/tipos'
 
 @Injectable()
@@ -30,8 +31,60 @@ export class PedidosService {
     private readonly promociones: PromocionesService,
     private readonly permisos: PermisosService,
     private readonly pruebas: PruebasService,
+    private readonly notificaciones: NotificacionesService,
     private readonly bitacora: BitacoraService
   ) {}
+
+  /**
+   * Avisa a la clienta que su pedido avanzo.
+   *
+   * Solo los estados que le cambian algo. "Preparando" y "listo" no son
+   * tramites internos: le dicen si puede pasar a buscarlo. "Pagado" no se avisa
+   * aca —lo avisa el modulo de pagos, que es quien sabe si el pago se confirmo
+   * o se rechazo— y avisarlo dos veces seria peor que no avisarlo.
+   *
+   * Un pedido de mostrador no genera aviso: la clienta esta parada ahi.
+   */
+  private async avisarCambioDeEstado(
+    pedido: { id: bigint; numero: string; cliente_id: number | null; canal: string },
+    nuevo: EstadoPedido
+  ): Promise<void> {
+    if (pedido.cliente_id === null || pedido.canal === 'tienda') return
+
+    const textos: Partial<Record<EstadoPedido, { titulo: string; mensaje: string }>> = {
+      preparando: {
+        titulo: 'Estamos preparando tu pedido',
+        mensaje: `El pedido ${pedido.numero} ya esta en preparacion.`,
+      },
+      listo: {
+        titulo: 'Tu pedido esta listo',
+        mensaje: `Podes pasar a retirar el pedido ${pedido.numero}.`,
+      },
+      enviado: {
+        titulo: 'Tu pedido salio',
+        mensaje: `El pedido ${pedido.numero} esta en camino.`,
+      },
+      entregado: {
+        titulo: 'Recibiste tu pedido',
+        mensaje: `Contanos que te parecio lo que compraste en el pedido ${pedido.numero}.`,
+      },
+      devuelto: {
+        titulo: 'Devolucion registrada',
+        mensaje: `El pedido ${pedido.numero} figura como devuelto.`,
+      },
+    }
+
+    const texto = textos[nuevo]
+    if (!texto) return
+
+    await this.notificaciones.crear({
+      usuarioId: pedido.cliente_id,
+      tipo: 'pedido',
+      titulo: texto.titulo,
+      mensaje: texto.mensaje,
+      url: `/pedido/${pedido.id}`,
+    })
+  }
 
   // ==========================================================================
   // Alta
@@ -315,6 +368,8 @@ export class PedidosService {
         },
       })
     })
+
+    await this.avisarCambioDeEstado(pedido, nuevo)
 
     await this.bitacora.registrar(ctx, {
       accion: 'actualizar',
